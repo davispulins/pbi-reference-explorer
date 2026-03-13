@@ -1,0 +1,363 @@
+table 'ur_database cash_flow_statements'
+	lineageTag: 77678df2-5c3f-4d41-b040-52bdf2fcca96
+
+	column statement_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 2b98fc65-189b-40a8-9d60-739d4bd06cc3
+		summarizeBy: none
+		sourceColumn: statement_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column file_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 98106282-80b8-4d23-99c8-155cdd05ba84
+		summarizeBy: sum
+		sourceColumn: file_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column cfo_dm_cash_received_from_customers
+		dataType: int64
+		lineageTag: ecbb2d75-2865-4771-9c42-d58e0809414c
+		summarizeBy: sum
+		sourceColumn: cfo_dm_cash_received_from_customers
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cfo_dm_cash_paid_to_suppliers_employees
+		dataType: int64
+		lineageTag: 14586265-44e0-4ed9-9f9c-d8a653dbc4f9
+		summarizeBy: sum
+		sourceColumn: cfo_dm_cash_paid_to_suppliers_employees
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cfo_dm_other_cash_received_paid
+		dataType: int64
+		lineageTag: 99f86d6f-b4b5-45a5-bfc3-01c61e343080
+		summarizeBy: sum
+		sourceColumn: cfo_dm_other_cash_received_paid
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cfo_dm_operating_cash_flow
+		dataType: int64
+		lineageTag: 400090a8-f374-44cd-9c9c-a3c04b550894
+		summarizeBy: sum
+		sourceColumn: cfo_dm_operating_cash_flow
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cfo_dm_interest_paid
+		dataType: int64
+		lineageTag: 73ab8f97-bf3c-4bd7-ad25-dc3e83525a20
+		summarizeBy: sum
+		sourceColumn: cfo_dm_interest_paid
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cfo_dm_income_taxes_paid
+		dataType: int64
+		lineageTag: 00708254-759b-44f1-bf26-9452dea10740
+		summarizeBy: sum
+		sourceColumn: cfo_dm_income_taxes_paid
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cfo_dm_extra_items_cash_flow
+		dataType: int64
+		lineageTag: 72927b3a-61fb-49f6-b36f-02e06ca59b16
+		summarizeBy: sum
+		sourceColumn: cfo_dm_extra_items_cash_flow
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cfo_dm_net_operating_cash_flow
+		dataType: int64
+		lineageTag: 6be6539f-e7e2-4b1c-90ed-8365306d57c1
+		summarizeBy: sum
+		sourceColumn: cfo_dm_net_operating_cash_flow
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cfo_im_income_before_income_taxes
+		dataType: int64
+		lineageTag: d2cd9517-e47b-4991-9616-723f6f84513f
+		summarizeBy: sum
+		sourceColumn: cfo_im_income_before_income_taxes
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cfo_im_income_before_changes_in_working_capital
+		dataType: int64
+		lineageTag: e0e419c5-17b8-405f-8372-099b87ff0a5b
+		summarizeBy: sum
+		sourceColumn: cfo_im_income_before_changes_in_working_capital
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cfo_im_operating_cash_flow
+		dataType: int64
+		lineageTag: 0d316dc4-fd10-43f7-b020-67e976980dc2
+		summarizeBy: sum
+		sourceColumn: cfo_im_operating_cash_flow
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cfo_im_interest_paid
+		dataType: int64
+		lineageTag: 19850af2-51c9-4d05-b2a6-a815f8d98c20
+		summarizeBy: sum
+		sourceColumn: cfo_im_interest_paid
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cfo_im_income_taxes_paid
+		dataType: int64
+		lineageTag: ca81b147-10e5-4b20-a5bb-6ad9430089a3
+		summarizeBy: sum
+		sourceColumn: cfo_im_income_taxes_paid
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cfo_im_extra_items_cash_flow
+		dataType: int64
+		lineageTag: f04cd56b-af00-4e9a-a8c8-760753a6e7d5
+		summarizeBy: sum
+		sourceColumn: cfo_im_extra_items_cash_flow
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cfo_im_net_operating_cash_flow
+		dataType: int64
+		lineageTag: 2f6af933-f8e4-4cf1-ad9f-075480b8cf6d
+		summarizeBy: sum
+		sourceColumn: cfo_im_net_operating_cash_flow
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column cfi_acquisition_of_stocks_shares
+		dataType: int64
+		formatString: 0
+		lineageTag: 1a04d221-fb88-4926-aa1d-c84e04e6d9e7
+		summarizeBy: sum
+		sourceColumn: cfi_acquisition_of_stocks_shares
+
+		annotation SummarizationSetBy = Automatic
+
+	column cfi_sale_proceeds_from_stocks_shares
+		dataType: int64
+		formatString: 0
+		lineageTag: bc14b69e-5e75-48d8-b16d-c19e52433770
+		summarizeBy: sum
+		sourceColumn: cfi_sale_proceeds_from_stocks_shares
+
+		annotation SummarizationSetBy = Automatic
+
+	column cfi_acquisition_of_fixed_assets_intangible_assets
+		dataType: int64
+		formatString: 0
+		lineageTag: 5002627f-a09d-46b5-873c-a8e36e794887
+		summarizeBy: sum
+		sourceColumn: cfi_acquisition_of_fixed_assets_intangible_assets
+
+		annotation SummarizationSetBy = Automatic
+
+	column cfi_sale_proceeds_from_fixed_assets_intangible_assets
+		dataType: int64
+		formatString: 0
+		lineageTag: 26f58bb8-42a7-4c5f-a25e-1b699b5738c6
+		summarizeBy: sum
+		sourceColumn: cfi_sale_proceeds_from_fixed_assets_intangible_assets
+
+		annotation SummarizationSetBy = Automatic
+
+	column cfi_loans_made
+		dataType: int64
+		formatString: 0
+		lineageTag: efe22fd3-0be3-450e-abd0-3edce89518c3
+		summarizeBy: sum
+		sourceColumn: cfi_loans_made
+
+		annotation SummarizationSetBy = Automatic
+
+	column cfi_repayments_of_loans_received
+		dataType: int64
+		formatString: 0
+		lineageTag: 792290df-3bfd-4993-92e3-4f6040e5ae2a
+		summarizeBy: sum
+		sourceColumn: cfi_repayments_of_loans_received
+
+		annotation SummarizationSetBy = Automatic
+
+	column cfi_interest_received
+		dataType: int64
+		formatString: 0
+		lineageTag: a36224d9-6a83-4f9f-9ce1-5f30f12c1dbd
+		summarizeBy: sum
+		sourceColumn: cfi_interest_received
+
+		annotation SummarizationSetBy = Automatic
+
+	column cfi_dividends_received
+		dataType: int64
+		formatString: 0
+		lineageTag: c93fcd30-e466-403b-bb0e-52349648c498
+		summarizeBy: sum
+		sourceColumn: cfi_dividends_received
+
+		annotation SummarizationSetBy = Automatic
+
+	column cfi_net_investing_cash_flow
+		dataType: int64
+		formatString: #,0
+		lineageTag: cbb4d100-abaf-4848-8b07-1a44ffceeea6
+		summarizeBy: sum
+		sourceColumn: cfi_net_investing_cash_flow
+
+		annotation SummarizationSetBy = Automatic
+
+	column cff_proceeds_from_stocks_bonds_issuance_or_contributed_capital
+		dataType: int64
+		formatString: 0
+		lineageTag: 9c37a9db-a740-492f-8a34-871faf445623
+		summarizeBy: sum
+		sourceColumn: cff_proceeds_from_stocks_bonds_issuance_or_contributed_capital
+
+		annotation SummarizationSetBy = Automatic
+
+	column cff_loans_received
+		dataType: int64
+		formatString: 0
+		lineageTag: 970a497b-3e82-4881-9b13-174393c5b3d1
+		summarizeBy: sum
+		sourceColumn: cff_loans_received
+
+		annotation SummarizationSetBy = Automatic
+
+	column cff_subsidies_grants_donations_received
+		dataType: int64
+		formatString: #,0
+		lineageTag: 2ff5aebd-ad68-429d-8545-1c1540d61342
+		summarizeBy: sum
+		sourceColumn: cff_subsidies_grants_donations_received
+
+		annotation SummarizationSetBy = Automatic
+
+	column cff_repayments_of_loans_made
+		dataType: int64
+		formatString: 0
+		lineageTag: 00c785a1-e17a-4d9c-8333-5dfeb7fbe6ac
+		summarizeBy: sum
+		sourceColumn: cff_repayments_of_loans_made
+
+		annotation SummarizationSetBy = Automatic
+
+	column cff_repayments_of_lease_obligations
+		dataType: int64
+		formatString: 0
+		lineageTag: 2d4d440e-00e8-47ad-b2a4-d37c441efe5f
+		summarizeBy: sum
+		sourceColumn: cff_repayments_of_lease_obligations
+
+		annotation SummarizationSetBy = Automatic
+
+	column cff_dividends_paid
+		dataType: int64
+		formatString: #,0
+		lineageTag: 20136f8e-ab96-4528-8a1e-cd36894e2d53
+		summarizeBy: sum
+		sourceColumn: cff_dividends_paid
+
+		annotation SummarizationSetBy = Automatic
+
+	column cff_net_financing_cash_flow
+		dataType: int64
+		formatString: 0
+		lineageTag: 09d14452-ce74-43cc-a237-322506269773
+		summarizeBy: sum
+		sourceColumn: cff_net_financing_cash_flow
+
+		annotation SummarizationSetBy = Automatic
+
+	column effect_of_exchange_rate_change
+		dataType: int64
+		formatString: 0
+		lineageTag: 7f47a4e9-829b-4227-88c2-ad89ae12cc95
+		summarizeBy: sum
+		sourceColumn: effect_of_exchange_rate_change
+
+		annotation SummarizationSetBy = Automatic
+
+	column net_increase
+		dataType: int64
+		formatString: 0
+		lineageTag: e1fb3692-1137-4b99-be2e-1f86c60c422c
+		summarizeBy: sum
+		sourceColumn: net_increase
+
+		annotation SummarizationSetBy = Automatic
+
+	column at_beginning_of_year
+		dataType: int64
+		formatString: 0
+		lineageTag: 218f06dc-2b2d-45c5-bcff-9c2ddfb0f37e
+		summarizeBy: sum
+		sourceColumn: at_beginning_of_year
+
+		annotation SummarizationSetBy = Automatic
+
+	column at_end_of_year
+		dataType: int64
+		formatString: 0
+		lineageTag: 982bd8a7-9578-42ae-bc21-1aa52611cfe6
+		summarizeBy: sum
+		sourceColumn: at_end_of_year
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'ur_database cash_flow_statements-e3086c36-cd74-4cef-8a4a-49da0cee6a7d' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents("https://data.gov.lv/dati/dataset/8d31b878-536a-44aa-a013-8bc6b669d477/resource/1a11fc29-ba7c-4e5a-8edc-7a28cea24988/download/cash_flow_statements.csv"),[Delimiter=";", Columns=37, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"statement_id", Int64.Type}, {"file_id", Int64.Type}, {"cfo_dm_cash_received_from_customers", Int64.Type}, {"cfo_dm_cash_paid_to_suppliers_employees", Int64.Type}, {"cfo_dm_other_cash_received_paid", Int64.Type}, {"cfo_dm_operating_cash_flow", Int64.Type}, {"cfo_dm_interest_paid", Int64.Type}, {"cfo_dm_income_taxes_paid", Int64.Type}, {"cfo_dm_extra_items_cash_flow", Int64.Type}, {"cfo_dm_net_operating_cash_flow", Int64.Type}, {"cfo_im_income_before_income_taxes", Int64.Type}, {"cfo_im_income_before_changes_in_working_capital", Int64.Type}, {"cfo_im_operating_cash_flow", Int64.Type}, {"cfo_im_interest_paid", Int64.Type}, {"cfo_im_income_taxes_paid", Int64.Type}, {"cfo_im_extra_items_cash_flow", Int64.Type}, {"cfo_im_net_operating_cash_flow", Int64.Type}, {"cfi_acquisition_of_stocks_shares", Int64.Type}, {"cfi_sale_proceeds_from_stocks_shares", Int64.Type}, {"cfi_acquisition_of_fixed_assets_intangible_assets", Int64.Type}, {"cfi_sale_proceeds_from_fixed_assets_intangible_assets", Int64.Type}, {"cfi_loans_made", Int64.Type}, {"cfi_repayments_of_loans_received", Int64.Type}, {"cfi_interest_received", Int64.Type}, {"cfi_dividends_received", Int64.Type}, {"cfi_net_investing_cash_flow", Int64.Type}, {"cff_proceeds_from_stocks_bonds_issuance_or_contributed_capital", Int64.Type}, {"cff_loans_received", Int64.Type}, {"cff_subsidies_grants_donations_received", Int64.Type}, {"cff_repayments_of_loans_made", Int64.Type}, {"cff_repayments_of_lease_obligations", Int64.Type}, {"cff_dividends_paid", Int64.Type}, {"cff_net_financing_cash_flow", Int64.Type}, {"effect_of_exchange_rate_change", Int64.Type}, {"net_increase", Int64.Type}, {"at_beginning_of_year", Int64.Type}, {"at_end_of_year", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

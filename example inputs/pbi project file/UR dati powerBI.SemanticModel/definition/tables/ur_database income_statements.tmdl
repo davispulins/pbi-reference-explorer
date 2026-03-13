@@ -1,0 +1,281 @@
+table 'ur_database income_statements'
+	lineageTag: 8296588e-9805-47a4-bc5d-d0bc41ec2e0b
+
+	column statement_id
+		dataType: int64
+		formatString: 0
+		lineageTag: b383bdd9-61be-438c-b86a-38cda2cb40e8
+		summarizeBy: none
+		sourceColumn: statement_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column file_id
+		dataType: int64
+		formatString: 0
+		lineageTag: 06b8302b-7d36-4fe2-8b50-eb081357b080
+		summarizeBy: sum
+		sourceColumn: file_id
+
+		annotation SummarizationSetBy = Automatic
+
+	column net_turnover
+		dataType: int64
+		formatString: #,0
+		lineageTag: 08dc6f3f-b68f-47ed-bf5e-1ab4355b1455
+		summarizeBy: sum
+		sourceColumn: net_turnover
+
+		annotation SummarizationSetBy = Automatic
+
+	column by_nature_inventory_change
+		dataType: int64
+		lineageTag: 9d16f84c-a495-4e4e-9e49-d808cdc46ddf
+		summarizeBy: sum
+		sourceColumn: by_nature_inventory_change
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column by_nature_long_term_investment_expenses
+		dataType: int64
+		lineageTag: 85e086a1-d464-410f-bc69-75ef994d326d
+		summarizeBy: sum
+		sourceColumn: by_nature_long_term_investment_expenses
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column by_nature_other_operating_revenues
+		dataType: int64
+		lineageTag: 8a80454e-789d-42d8-ac44-f9f3b83ea696
+		summarizeBy: sum
+		sourceColumn: by_nature_other_operating_revenues
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column by_nature_material_expenses
+		dataType: int64
+		formatString: #,0
+		lineageTag: da723e78-7c99-4157-ac23-5960e48f02e8
+		summarizeBy: sum
+		sourceColumn: by_nature_material_expenses
+
+		annotation SummarizationSetBy = Automatic
+
+	column by_nature_labour_expenses
+		dataType: int64
+		formatString: #,0
+		lineageTag: 7b1d87a0-ffcf-4b86-baa6-dfd5e2ae6eff
+		summarizeBy: sum
+		sourceColumn: by_nature_labour_expenses
+
+		annotation SummarizationSetBy = Automatic
+
+	column by_nature_depreciation_expenses
+		dataType: int64
+		lineageTag: f06f7e41-b3d6-4bd0-b581-0428078c6f5d
+		summarizeBy: sum
+		sourceColumn: by_nature_depreciation_expenses
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column by_function_cost_of_goods_sold
+		dataType: int64
+		lineageTag: 8809a88e-e8ba-4abc-9f2a-380a24f2ff6a
+		summarizeBy: sum
+		sourceColumn: by_function_cost_of_goods_sold
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column by_function_gross_profit
+		dataType: int64
+		lineageTag: ef1b1c68-66f3-4769-b665-60ac64eeba18
+		summarizeBy: sum
+		sourceColumn: by_function_gross_profit
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column by_function_selling_expenses
+		dataType: int64
+		lineageTag: 53b0ddad-c6ed-4dcc-881e-4065dea8b129
+		summarizeBy: sum
+		sourceColumn: by_function_selling_expenses
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column by_function_administrative_expenses
+		dataType: int64
+		lineageTag: c2e4a23e-1c2d-420d-ad1c-a904f4d8d2b0
+		summarizeBy: sum
+		sourceColumn: by_function_administrative_expenses
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column by_function_other_operating_revenues
+		dataType: int64
+		lineageTag: 319d9d74-79c9-4862-99da-24b1ac723176
+		summarizeBy: sum
+		sourceColumn: by_function_other_operating_revenues
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column other_operating_expenses
+		dataType: int64
+		formatString: 0
+		lineageTag: 0bcb4d6e-e197-4b76-93a2-8ffa6e873b79
+		summarizeBy: sum
+		sourceColumn: other_operating_expenses
+
+		annotation SummarizationSetBy = Automatic
+
+	column equity_investment_earnings
+		dataType: int64
+		formatString: 0
+		lineageTag: b3045274-224f-4f13-9c68-fd2323ea4e22
+		summarizeBy: sum
+		sourceColumn: equity_investment_earnings
+
+		annotation SummarizationSetBy = Automatic
+
+	column other_long_term_investment_earnings
+		dataType: int64
+		formatString: 0
+		lineageTag: 7467319a-8733-4878-83bd-d21ecd8082c8
+		summarizeBy: sum
+		sourceColumn: other_long_term_investment_earnings
+
+		annotation SummarizationSetBy = Automatic
+
+	column other_interest_revenues
+		dataType: int64
+		formatString: 0
+		lineageTag: 1e4a9ca1-0c3c-4fa5-a32b-30cbcd4af21b
+		summarizeBy: sum
+		sourceColumn: other_interest_revenues
+
+		annotation SummarizationSetBy = Automatic
+
+	column investment_fair_value_adjustments
+		dataType: int64
+		formatString: 0
+		lineageTag: b9435892-27dc-484b-a300-9721c521c203
+		summarizeBy: sum
+		sourceColumn: investment_fair_value_adjustments
+
+		annotation SummarizationSetBy = Automatic
+
+	column interest_expenses
+		dataType: int64
+		formatString: 0
+		lineageTag: f49ee289-d605-4af9-a86d-4701e46e84c5
+		summarizeBy: sum
+		sourceColumn: interest_expenses
+
+		annotation SummarizationSetBy = Automatic
+
+	column extra_revenues
+		dataType: int64
+		lineageTag: 0a54d501-b93c-451f-8332-efd8f7665693
+		summarizeBy: sum
+		sourceColumn: extra_revenues
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column extra_expenses
+		dataType: int64
+		lineageTag: 7e503660-c8c1-49fa-8fab-e38585458f70
+		summarizeBy: sum
+		sourceColumn: extra_expenses
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column income_before_income_taxes
+		dataType: int64
+		formatString: 0
+		lineageTag: bfaa3fa7-f66f-4e07-81d2-fef7b94450ae
+		summarizeBy: sum
+		sourceColumn: income_before_income_taxes
+
+		annotation SummarizationSetBy = Automatic
+
+	column provision_for_income_taxes
+		dataType: int64
+		formatString: 0
+		lineageTag: 88c4784b-236b-4844-a515-7ffc0cfe16fb
+		summarizeBy: sum
+		sourceColumn: provision_for_income_taxes
+
+		annotation SummarizationSetBy = Automatic
+
+	column income_after_income_taxes
+		dataType: int64
+		lineageTag: beaf6473-b028-4310-a556-99d8eca02420
+		summarizeBy: sum
+		sourceColumn: income_after_income_taxes
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column other_taxes
+		dataType: int64
+		lineageTag: cd4f525d-225f-45ec-8921-37363215d76a
+		summarizeBy: sum
+		sourceColumn: other_taxes
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column extra_dividends
+		dataType: int64
+		lineageTag: bfe0ab95-b031-45cf-af7d-3947c924948e
+		summarizeBy: sum
+		sourceColumn: extra_dividends
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column net_income
+		dataType: int64
+		formatString: #,0
+		lineageTag: 27e16c22-5a21-48ad-a925-11b439507942
+		summarizeBy: sum
+		sourceColumn: net_income
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'ur_database income_statements-b0a3c66f-dfa0-4af4-b553-992f6498e810' = m
+		mode: import
+		source =
+				let
+				    Source = Csv.Document(Web.Contents("https://data.gov.lv/dati/dataset/8d31b878-536a-44aa-a013-8bc6b669d477/resource/d5fd17ef-d32e-40cb-8399-82b780095af0/download/income_statements.csv"),[Delimiter=";", Columns=28, Encoding=65001, QuoteStyle=QuoteStyle.None]),
+				    #"Promoted Headers" = Table.PromoteHeaders(Source, [PromoteAllScalars=true]),
+				    #"Changed Type" = Table.TransformColumnTypes(#"Promoted Headers",{{"statement_id", Int64.Type}, {"file_id", Int64.Type}, {"net_turnover", Int64.Type}, {"by_nature_inventory_change", Int64.Type}, {"by_nature_long_term_investment_expenses", Int64.Type}, {"by_nature_other_operating_revenues", Int64.Type}, {"by_nature_material_expenses", Int64.Type}, {"by_nature_labour_expenses", Int64.Type}, {"by_nature_depreciation_expenses", Int64.Type}, {"by_function_cost_of_goods_sold", Int64.Type}, {"by_function_gross_profit", Int64.Type}, {"by_function_selling_expenses", Int64.Type}, {"by_function_administrative_expenses", Int64.Type}, {"by_function_other_operating_revenues", Int64.Type}, {"other_operating_expenses", Int64.Type}, {"equity_investment_earnings", Int64.Type}, {"other_long_term_investment_earnings", Int64.Type}, {"other_interest_revenues", Int64.Type}, {"investment_fair_value_adjustments", Int64.Type}, {"interest_expenses", Int64.Type}, {"extra_revenues", Int64.Type}, {"extra_expenses", Int64.Type}, {"income_before_income_taxes", Int64.Type}, {"provision_for_income_taxes", Int64.Type}, {"income_after_income_taxes", Int64.Type}, {"other_taxes", Int64.Type}, {"extra_dividends", Int64.Type}, {"net_income", Int64.Type}})
+				in
+				    #"Changed Type"
+
+	annotation PBI_ResultType = Table
+

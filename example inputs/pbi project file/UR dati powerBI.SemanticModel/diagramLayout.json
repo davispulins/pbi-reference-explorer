@@ -1,0 +1,96 @@
+{
+  "version": "1.1.0",
+  "diagrams": [
+    {
+      "ordinal": 0,
+      "scrollPosition": {
+        "x": 335.80246913580243,
+        "y": 0
+      },
+      "nodes": [
+        {
+          "location": {
+            "x": 0,
+            "y": 471.19259259259263
+          },
+          "nodeIndex": "ur_database balance_sheets",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 1
+        },
+        {
+          "location": {
+            "x": 0,
+            "y": 127.7777777777778
+          },
+          "nodeIndex": "ur_database cash_flow_statements",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 2
+        },
+        {
+          "location": {
+            "x": 405.78271604938277,
+            "y": 160.24938271604941
+          },
+          "nodeIndex": "ur_database financial_statements",
+          "nodeLineageTag": "401c00d9-de7a-49ef-ac8b-1b014b802f57",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 3
+        },
+        {
+          "location": {
+            "x": 251.6567901234568,
+            "y": 664.5938271604939
+          },
+          "nodeIndex": "ur_database income_statements",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 4
+        },
+        {
+          "location": {
+            "x": 767.42343041690788,
+            "y": 215.58271604938273
+          },
+          "nodeIndex": "ur_database register",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 5
+        },
+        {
+          "location": {
+            "x": 1095.8678748613522,
+            "y": 485.07469135802472
+          },
+          "nodeIndex": "members_SIA",
+          "nodeLineageTag": "d0eabb1a-f722-47ab-9063-b4a242064655",
+          "size": {
+            "height": 300,
+            "width": 234
+          },
+          "zIndex": 6
+        }
+      ],
+      "name": "All tables",
+      "zoomValue": 81,
+      "pinKeyFieldsToTop": false,
+      "showExtraHeaderInfo": false,
+      "hideKeyFieldsWhenCollapsed": false,
+      "tablesLocked": false
+    }
+  ],
+  "selectedDiagram": "All tables",
+  "defaultDiagram": "All tables"
+}

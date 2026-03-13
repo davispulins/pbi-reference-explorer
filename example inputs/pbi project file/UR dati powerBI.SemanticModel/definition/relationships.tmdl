@@ -1,0 +1,71 @@
+relationship f6b27f5b-f573-4fa5-8a92-49f925be9b02
+	fromColumn: 'ur_database financial_statements'.legal_entity_registration_number
+	toColumn: 'ur_database register'.regcode
+
+relationship 37d0ad42-2fe0-497e-a2f3-3c4ac05dec34
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: 'ur_database balance_sheets'.statement_id
+	toColumn: 'ur_database financial_statements'.id
+
+relationship 5e229546-9c26-44e7-8aff-2cbc157f2843
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: 'ur_database income_statements'.statement_id
+	toColumn: 'ur_database financial_statements'.id
+
+relationship 910aace4-e90b-4186-8167-f6cdbdfeb608
+	crossFilteringBehavior: bothDirections
+	fromCardinality: one
+	fromColumn: 'ur_database cash_flow_statements'.statement_id
+	toColumn: 'ur_database financial_statements'.id
+
+relationship c5304cd3-ac20-43f2-96b6-19e2729a7999
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'ur_database financial_statements'.year_started_on
+	toColumn: LocalDateTable_abc63066-1226-4334-957c-72feab7fc581.Date
+
+relationship 7eee8b8c-c93f-46eb-a0e5-a4abb1be1913
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'ur_database financial_statements'.year_ended_on
+	toColumn: LocalDateTable_901bee32-ac08-4596-a50a-4d9f42501068.Date
+
+relationship a988e9ea-ceca-41dd-8e73-357f271f35e5
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'ur_database financial_statements'.created_at
+	toColumn: LocalDateTable_8daf33ce-4b16-45c8-bfb5-85f4f8471c5a.Date
+
+relationship 4d3bf661-2071-48f2-a5f8-07264079b7a5
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'ur_database register'.registered
+	toColumn: LocalDateTable_4d9e96cc-8dc0-4769-b18d-8d0a7ebb5261.Date
+
+relationship 3d274a5b-7a73-43c3-add8-175e15a327c5
+	joinOnDateBehavior: datePartOnly
+	fromColumn: 'ur_database register'.terminated
+	toColumn: LocalDateTable_b9c56779-9f18-4c12-91ec-390b2c996c6d.Date
+
+relationship fef7d29c-7611-4176-b148-f82bc81f20d2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: members_SIA.birth_date
+	toColumn: LocalDateTable_50c0ea7c-7dd9-4c1e-ae5f-72c639d8bfef.Date
+
+relationship a60302f3-35f9-4372-a6c6-0c63001108b7
+	joinOnDateBehavior: datePartOnly
+	fromColumn: members_SIA.date_from
+	toColumn: LocalDateTable_0362a35d-61b5-43a8-90e0-1b89ffb4d60a.Date
+
+relationship 4f806bf8-034a-4bda-9a9b-987c44e62a59
+	joinOnDateBehavior: datePartOnly
+	fromColumn: members_SIA.registered_on
+	toColumn: LocalDateTable_f182aa79-f05c-4675-a886-8fc42e2b2287.Date
+
+relationship ccbb5f25-d9ec-4618-91c9-b7753b9eedb0
+	joinOnDateBehavior: datePartOnly
+	fromColumn: members_SIA.last_modified_at
+	toColumn: LocalDateTable_5067c043-83e6-4bbc-8f69-db82707542b4.Date
+
+relationship a60e600a-dabd-7f01-ab44-3d55337f6270
+	fromColumn: members_SIA.at_legal_entity_registration_number
+	toColumn: 'ur_database register'.regcode
+

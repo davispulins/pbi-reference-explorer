@@ -1,0 +1,111 @@
+table LocalDateTable_4d9e96cc-8dc0-4769-b18d-8d0a7ebb5261
+	isHidden
+	showAsVariationsOnly
+	lineageTag: 96aa77dd-4ae9-4a15-9f0a-f03ea3c00296
+
+	column Date
+		dataType: dateTime
+		isHidden
+		lineageTag: ad9ab328-702e-442d-a047-bb9ac9a4a417
+		dataCategory: PaddedDateTableDates
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Date]
+
+		annotation SummarizationSetBy = User
+
+	column Gads = YEAR([Date])
+		dataType: int64
+		isHidden
+		lineageTag: 53266466-3b99-4bc1-bd0b-417d50d33476
+		dataCategory: Years
+		summarizeBy: none
+
+		annotation SummarizationSetBy = User
+
+		annotation TemplateId = Year
+
+	column MonthNo = MONTH([Date])
+		dataType: int64
+		isHidden
+		lineageTag: 198dedaf-0101-411a-b147-2e1e240f74fc
+		dataCategory: MonthOfYear
+		summarizeBy: none
+
+		annotation SummarizationSetBy = User
+
+		annotation TemplateId = MonthNumber
+
+	column Mēnesis = FORMAT([Date], "MMMM")
+		dataType: string
+		isHidden
+		lineageTag: a45317a1-d806-43a8-bde7-dd3cf1a000c1
+		dataCategory: Months
+		summarizeBy: none
+		sortByColumn: MonthNo
+
+		annotation SummarizationSetBy = User
+
+		annotation TemplateId = Month
+
+	column QuarterNo = INT(([MonthNo] + 2) / 3)
+		dataType: int64
+		isHidden
+		lineageTag: 83a8c89e-9eea-421e-8bfb-092d21257d74
+		dataCategory: QuarterOfYear
+		summarizeBy: none
+
+		annotation SummarizationSetBy = User
+
+		annotation TemplateId = QuarterNumber
+
+	column Ceturksnis = "Cet " & [QuarterNo]
+		dataType: string
+		isHidden
+		lineageTag: 8f02bcaf-4465-4f99-b318-09f645bb10a2
+		dataCategory: Quarters
+		summarizeBy: none
+		sortByColumn: QuarterNo
+
+		annotation SummarizationSetBy = User
+
+		annotation TemplateId = Quarter
+
+	column Diena = DAY([Date])
+		dataType: int64
+		isHidden
+		lineageTag: 2285e65b-22eb-4eac-80d9-8cf9a32f1838
+		dataCategory: DayOfMonth
+		summarizeBy: none
+
+		annotation SummarizationSetBy = User
+
+		annotation TemplateId = Day
+
+	hierarchy 'Datumu hierarhija'
+		lineageTag: e0b6a7bf-c004-4fff-8e66-cff649011fe5
+
+		level Gads
+			lineageTag: e476156d-e4c4-4795-a583-38b25cc9bf83
+			column: Gads
+
+		level Ceturksnis
+			lineageTag: 20bf0574-e214-45f7-ab16-5d45d54b1ea4
+			column: Ceturksnis
+
+		level Mēnesis
+			lineageTag: e2708386-55a4-4219-8393-a140bf7347a4
+			column: Mēnesis
+
+		level Diena
+			lineageTag: 13c07dbd-a0d2-4fbb-bae1-ddbef4ccfdb5
+			column: Diena
+
+		annotation TemplateId = DateHierarchy
+
+	partition LocalDateTable_4d9e96cc-8dc0-4769-b18d-8d0a7ebb5261 = calculated
+		mode: import
+		source = Calendar(Date(Year(MIN('ur_database register'[registered])), 1, 1), Date(Year(MAX('ur_database register'[registered])), 12, 31))
+
+	annotation __PBI_LocalDateTable = true
+

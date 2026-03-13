@@ -1,0 +1,33 @@
+model Model
+	culture: lv-LV
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	sourceQueryCulture: lv-LV
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+annotation PBI_QueryOrder = ["ur_database balance_sheets","ur_database cash_flow_statements","ur_database financial_statements","ur_database income_statements","ur_database register","members_SIA"]
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_ProTooling = ["DevMode"]
+
+ref table 'ur_database balance_sheets'
+ref table DateTableTemplate_3e33ae9b-b233-45c9-9a7b-29a023624458
+ref table 'ur_database cash_flow_statements'
+ref table 'ur_database financial_statements'
+ref table 'ur_database income_statements'
+ref table 'ur_database register'
+ref table LocalDateTable_abc63066-1226-4334-957c-72feab7fc581
+ref table LocalDateTable_901bee32-ac08-4596-a50a-4d9f42501068
+ref table LocalDateTable_8daf33ce-4b16-45c8-bfb5-85f4f8471c5a
+ref table LocalDateTable_4d9e96cc-8dc0-4769-b18d-8d0a7ebb5261
+ref table LocalDateTable_b9c56779-9f18-4c12-91ec-390b2c996c6d
+ref table members_SIA
+ref table LocalDateTable_50c0ea7c-7dd9-4c1e-ae5f-72c639d8bfef
+ref table LocalDateTable_0362a35d-61b5-43a8-90e0-1b89ffb4d60a
+ref table LocalDateTable_f182aa79-f05c-4675-a886-8fc42e2b2287
+ref table LocalDateTable_5067c043-83e6-4bbc-8f69-db82707542b4
+
+ref cultureInfo lv-LV
+
