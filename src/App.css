@@ -6,19 +6,19 @@
 .upload-shell {
   display: grid;
   place-items: center;
-  padding: 32px 16px;
+  padding: 24px 16px;
 }
 
 .upload-panel {
   width: min(640px, 100%);
-  padding: 24px;
+  padding: 20px;
   border: 1px solid var(--border);
   background: var(--surface);
 }
 
 .upload-info {
-  margin-top: 20px;
-  padding: 14px 16px;
+  margin-top: 16px;
+  padding: 12px 14px;
   border: 1px solid var(--border);
   background: var(--surface-alt);
   border-left: 3px solid #c7ced6;
@@ -26,7 +26,7 @@
 
 .upload-info h2 {
   margin: 0 0 8px;
-  font-size: 15px;
+  font-size: 14px;
   color: var(--text);
 }
 
@@ -35,7 +35,7 @@
 .detail-header h2,
 .empty-detail h2 {
   margin: 0;
-  font-size: 24px;
+  font-size: 20px;
   line-height: 1.2;
   color: var(--text);
 }
@@ -62,17 +62,17 @@
 .upload-actions {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
-  margin-top: 20px;
+  gap: 10px;
+  margin-top: 16px;
 }
 
 .upload-actions-header {
-  margin-top: 20px;
+  margin-top: 16px;
 }
 
 .upload-actions-header h2 {
   margin: 0 0 4px;
-  font-size: 15px;
+  font-size: 14px;
   color: var(--text);
 }
 
@@ -85,7 +85,7 @@
   position: relative;
   display: grid;
   gap: 6px;
-  padding: 16px;
+  padding: 14px;
   border: 1px solid #9ca3af;
   background: #fff;
   cursor: pointer;
@@ -107,14 +107,14 @@
 }
 
 .upload-option-tag {
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 0.04em;
   text-transform: uppercase;
   color: var(--text-muted);
 }
 
 .upload-option strong {
-  font-size: 16px;
+  font-size: 15px;
   color: var(--text);
 }
 
@@ -125,11 +125,11 @@
 .upload-option-cta {
   margin-top: 8px;
   justify-self: start;
-  padding: 6px 10px;
+  padding: 5px 9px;
   border: 1px solid #9ca3af;
   background: #f3f4f6;
   color: var(--text);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
 }
 
@@ -141,21 +141,21 @@
 }
 
 .app-shell {
-  padding: 16px;
+  padding: 12px;
 }
 
 .app-header {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
-  padding: 16px;
+  gap: 12px;
+  padding: 12px 14px;
   border: 1px solid var(--border);
   background: var(--surface);
 }
 
 .header-actions {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: flex-start;
 }
 
@@ -163,15 +163,15 @@
   border: 1px solid var(--border);
   background: var(--surface-alt);
   color: var(--text);
-  padding: 8px 12px;
+  padding: 7px 10px;
   cursor: pointer;
 }
 
 .analysis-layout {
   display: grid;
   grid-template-columns: 420px minmax(0, 1fr);
-  gap: 16px;
-  margin-top: 16px;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .tree-pane,
@@ -187,21 +187,22 @@
 }
 
 .tree-toolbar {
-  padding: 12px;
+  padding: 10px;
   border-bottom: 1px solid var(--border);
 }
 
 .tree-search {
   width: 100%;
-  padding: 8px 10px;
+  padding: 7px 9px;
   border: 1px solid var(--border);
   background: #fff;
   color: var(--text);
+  font-size: 13px;
 }
 
 .hidden-tables {
-  margin-top: 10px;
-  font-size: 13px;
+  margin-top: 8px;
+  font-size: 12px;
 }
 
 .hidden-tables summary {
@@ -217,7 +218,7 @@
 }
 
 .hidden-table-list li + li {
-  margin-top: 4px;
+  margin-top: 3px;
 }
 
 .tree-list {
@@ -228,7 +229,7 @@
 
 .hidden-tables-bottom {
   margin-top: auto;
-  padding: 12px;
+  padding: 10px;
   border-top: 1px solid var(--border);
   background: var(--surface-alt);
 }
@@ -251,8 +252,9 @@
 }
 
 .tree-table {
-  padding: 10px 12px;
+  padding: 8px 10px;
   font-weight: 600;
+  font-size: 13px;
 }
 
 .tree-table:hover,
@@ -263,7 +265,7 @@
 .tree-chevron,
 .tree-count {
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: 11px;
 }
 
 .tree-table-name,
@@ -278,11 +280,12 @@
 .tree-items {
   list-style: none;
   margin: 0;
-  padding: 0 0 6px;
+  padding: 0 0 4px;
 }
 
 .tree-item {
-  padding: 8px 12px 8px 28px;
+  padding: 6px 10px 6px 22px;
+  font-size: 13px;
 }
 
 .tree-item.selected {
@@ -305,7 +308,7 @@
 .tree-item-meta {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   margin-left: auto;
 }
 
@@ -315,12 +318,12 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 22px;
-  padding: 0 8px;
+  min-height: 19px;
+  padding: 0 6px;
   border: 1px solid var(--border);
   background: #fff;
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -341,19 +344,19 @@
 .object-kind-marker {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 3px;
   flex: 0 0 auto;
 }
 
 .object-kind-icon {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   flex: 0 0 auto;
 }
 
 .object-kind-letter {
   color: var(--text-muted);
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
   line-height: 1;
 }
@@ -375,21 +378,21 @@
 }
 
 .detail-pane {
-  padding: 0 0 16px;
+  padding: 0 0 12px;
 }
 
 .detail-header {
   display: flex;
   justify-content: space-between;
-  gap: 16px;
+  gap: 12px;
   align-items: flex-start;
-  padding: 16px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--border);
 }
 
 .detail-header-meta {
   display: flex;
-  gap: 8px;
+  gap: 6px;
   align-items: center;
   flex-wrap: wrap;
   justify-content: flex-end;
@@ -397,15 +400,15 @@
 
 .status-badge {
   border: 1px solid currentColor;
-  padding: 4px 8px;
-  font-size: 12px;
+  padding: 3px 7px;
+  font-size: 11px;
   font-weight: 600;
   white-space: nowrap;
   background: #fff;
 }
 
 .detail-section {
-  padding: 16px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--border);
 }
 
@@ -416,8 +419,8 @@
 }
 
 .detail-section h3 {
-  margin: 0 0 10px;
-  font-size: 14px;
+  margin: 0 0 8px;
+  font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: var(--text-muted);
@@ -435,11 +438,11 @@
 }
 
 .detail-list li + li {
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 .grouped-detail-list li {
-  padding: 12px;
+  padding: 10px;
   border: 1px solid var(--border);
   background: var(--surface-alt);
 }
@@ -454,7 +457,7 @@
   background: transparent;
   color: var(--text);
   font-family: Consolas, 'Courier New', monospace;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .object-reference-table {
@@ -475,15 +478,15 @@
 }
 
 .grouped-detail-list li + li {
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 .usage-list li {
   display: grid;
-  grid-template-columns: 120px minmax(0, 1fr);
-  gap: 10px 16px;
+  grid-template-columns: 100px minmax(0, 1fr);
+  gap: 8px 12px;
   align-items: start;
-  padding: 12px 14px;
+  padding: 10px 12px;
   border: 1px solid var(--border);
   background: var(--surface-alt);
 }
@@ -493,7 +496,7 @@
 }
 
 .usage-list li + li {
-  margin-top: 10px;
+  margin-top: 8px;
 }
 
 .usage-list li strong {
@@ -508,12 +511,14 @@
 
 pre {
   margin: 0;
-  padding: 12px;
+  padding: 10px;
   overflow: auto;
   background: #f7f8fa;
   border: 1px solid var(--border);
   color: var(--text);
   font-family: Consolas, 'Courier New', monospace;
+  font-size: 13px;
+  line-height: 1.45;
   white-space: pre-wrap;
   word-break: break-word;
 }
@@ -521,7 +526,7 @@ pre {
 .empty-panel,
 .empty-detail,
 .notes-panel {
-  padding: 16px;
+  padding: 12px 14px;
 }
 
 .empty-panel {
@@ -534,7 +539,7 @@ pre {
 
 .upload-progress,
 .upload-error {
-  margin: 16px 0 0;
+  margin: 12px 0 0;
 }
 
 @media (max-width: 960px) {

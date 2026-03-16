@@ -1,6 +1,6 @@
 :root {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  line-height: 1.5;
+  line-height: 1.4;
   font-weight: 400;
   color: #1f2937;
   background: #f3f4f6;
@@ -29,6 +29,7 @@ body,
 
 body {
   min-height: 100vh;
+  font-size: 14px;
 }
 
 button,

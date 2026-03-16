@@ -12,6 +12,26 @@ function unique(values: ObjectId[]): ObjectId[] {
   return Array.from(new Set(values))
 }
 
+function countDistinctReportReferences(
+  usages: AnalysisResult['reportUsages'],
+): number {
+  const uniqueArtifacts = new Set<string>()
+
+  for (const usage of usages) {
+    uniqueArtifacts.add(
+      [
+        usage.artifactType,
+        usage.artifactPath,
+        usage.pageName ?? '',
+        usage.visualName ?? '',
+        usage.visualType ?? '',
+      ].join('|'),
+    )
+  }
+
+  return uniqueArtifacts.size
+}
+
 export function analyzeProject(files: FileMap): AnalysisBundle {
   const project = resolveProject(files)
 
@@ -53,7 +73,8 @@ export function analyzeProject(files: FileMap): AnalysisBundle {
     const inboundRefs = unique(inboundModelRefs.get(object.id) ?? [])
     const reportHits = usagesByObject.get(object.id) ?? []
     const notes = semanticModel.notes.get(object.id) ?? []
-    const referenceCount = inboundRefs.length + reportHits.length
+    const referenceCount =
+      inboundRefs.length + countDistinctReportReferences(reportHits)
 
     let status: AnalysisResult['status'] = 'UnusedCandidate'
     if (semanticModel.parseErrors.has(object.id)) {

@@ -108,15 +108,8 @@ function ObjectKindIcon(props: { kind: AnalysisResult['object']['kind'] }) {
   )
 }
 
-function humanStatus(status: AnalysisResult['status']) {
-  switch (status) {
-    case 'UnusedCandidate':
-      return 'Unused candidate'
-    case 'ParseError':
-      return 'Parse error'
-    default:
-      return status
-  }
+function formatReferenceLabel(count: number) {
+  return `${count} ${count === 1 ? 'reference' : 'references'}`
 }
 
 function formatUsageTitle(usage: ReportUsage) {
@@ -286,22 +279,34 @@ function UploadScreen(props: {
       <section className="upload-panel">
         <h1>PBI Reference Explorer</h1>
         <p className="upload-copy">
-          Analyze a Power BI project and find measures or calculated columns
-          that are still referenced in visuals, filters, bookmarks, or other
-          expressions.
+          Analyze a Power BI Project and find measures or calculated columns
+          that are still used across the semantic model, visuals, filters,
+          bookmarks, and other report definitions.
         </p>
+
+        <section className="upload-info">
+          <h2>What this tool does</h2>
+          <p>
+            Use this explorer to trace references, surface dependency chains,
+            and identify unused measures or calculated columns that may be safe
+            to remove from your model.
+          </p>
+          <p>
+            All analysis runs entirely in your browser. No project files or
+            model data are sent to external servers.
+          </p>
+        </section>
 
         <section className="upload-info">
           <h2>Use a Power BI Project (.pbip)</h2>
           <p>
             This app works with the Power BI Project format (`.pbip`) because
             the report and semantic model definitions are stored as readable
-            files that can be analyzed in the browser.
+            files that can be inspected directly in the browser.
           </p>
           <p>
             If you currently have a `.pbix` file, save it as a Power BI Project
-            first and then upload the full project folder, or a zip of that
-            folder.
+            first, then upload the full project folder or a zip of that folder.
           </p>
         </section>
 
@@ -317,7 +322,9 @@ function UploadScreen(props: {
 
         <div className="upload-actions-header">
           <h2>Choose a project to analyze</h2>
-          <p>Select either the full project folder or a zip of that folder.</p>
+          <p>
+            Select either the full PBIP project folder or a zip of that folder.
+          </p>
         </div>
 
         <div className="upload-actions">
@@ -483,10 +490,11 @@ function App() {
     <div className="app-shell">
       <header className="app-header">
         <div>
-          <h1>Analysis</h1>
+          <h1>Reference analysis</h1>
           <p className="header-copy">
-            Expand a table, choose a measure or calculated column, and inspect
-            how it is referenced.
+            Review measures and calculated columns, see where they are still
+            referenced, and identify unused objects that can likely be deleted
+            from the model.
           </p>
         </div>
 
@@ -564,7 +572,7 @@ function App() {
                                 <span className="tree-item-flag">Unused</span>
                               ) : null}
                               <span className="tree-item-references">
-                                References {result.referenceCount}
+                                {formatReferenceLabel(result.referenceCount)}
                               </span>
                             </span>
                           </button>
@@ -605,10 +613,7 @@ function App() {
                 </div>
                 <div className="detail-header-meta">
                   <span className="detail-reference-total">
-                    References {selectedResult.referenceCount}
-                  </span>
-                  <span className={`status-badge status-${selectedResult.status}`}>
-                    {humanStatus(selectedResult.status)}
+                    {formatReferenceLabel(selectedResult.referenceCount)}
                   </span>
                 </div>
               </div>

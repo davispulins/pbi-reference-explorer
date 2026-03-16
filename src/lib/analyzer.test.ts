@@ -118,7 +118,7 @@ table Sales
     )
 
     expect(result?.status).toBe('Used')
-    expect(result?.referenceCount).toBe(3)
+    expect(result?.referenceCount).toBe(2)
     expect(result?.reportUsages).toHaveLength(3)
     expect(
       result?.reportUsages.some(
@@ -132,6 +132,58 @@ table Sales
         (usage) => usage.artifactType === 'reportExtension',
       ),
     ).toBe(true)
+  })
+
+  it('counts a visual only once when the same object is used in values and sort', () => {
+    const bundle = analyzeProject({
+      ...baseFiles,
+      'project/model/definition/tables/Sales.tmdl': `
+table Sales
+  measure 'Total Sales' = SUM ( Sales[Amount] )
+      `.trim(),
+      'project/report/definition/pages/ReportSection/page.json': JSON.stringify({
+        name: 'ReportSection',
+        displayName: 'Overview',
+      }),
+      'project/report/definition/pages/ReportSection/visuals/Visual1/visual.json':
+        JSON.stringify({
+          visual: {
+            visualType: 'clusteredColumnChart',
+          },
+          query: {
+            From: [{ Name: 's', Entity: 'Sales' }],
+            queryState: {
+              Values: {
+                projections: [
+                  {
+                    field: {
+                      Measure: {
+                        Expression: { SourceRef: { Source: 's' } },
+                        Property: 'Total Sales',
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+            sortDefinition: {
+              by: {
+                Measure: {
+                  Expression: { SourceRef: { Source: 's' } },
+                  Property: 'Total Sales',
+                },
+              },
+            },
+          },
+        }),
+    })
+
+    const result = bundle.results.find(
+      (entry) => entry.object.id === 'Sales[Total Sales]',
+    )
+
+    expect(result?.reportUsages).toHaveLength(2)
+    expect(result?.referenceCount).toBe(1)
   })
 
   it('marks ambiguous unqualified references as Unknown', () => {
