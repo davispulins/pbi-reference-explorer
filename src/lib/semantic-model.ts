@@ -1,10 +1,11 @@
 import { extractDaxDependencies, makeObjectId } from './dax'
 import { basename, pathStartsWith } from './path'
-import type { FileMap, ModelObject, ObjectId } from '../types'
+import type { FileMap, ModelObject, ObjectId, ReportUsage } from '../types'
 
 export interface SemanticModelScan {
   objects: ModelObject[]
   outboundRefs: Map<ObjectId, ObjectId[]>
+  relationshipUsages: ReportUsage[]
   notes: Map<ObjectId, string[]>
   parseErrors: Set<ObjectId>
   ignoredTables: string[]
@@ -28,6 +29,57 @@ function cleanExpression(lines: string[]): string {
     .join('\n')
     .replace(/\s+$/g, '')
     .trim()
+}
+
+function parseBoolean(value: string): boolean | undefined {
+  const normalized = value.trim().toLowerCase()
+  if (normalized === 'true') {
+    return true
+  }
+  if (normalized === 'false') {
+    return false
+  }
+  return undefined
+}
+
+function splitObjectReference(rawReference: string): { table: string; column: string } | null {
+  let splitIndex = -1
+  let inQuotedIdentifier = false
+
+  for (let index = 0; index < rawReference.length; index += 1) {
+    const character = rawReference[index]
+
+    if (character === "'") {
+      if (inQuotedIdentifier && rawReference[index + 1] === "'") {
+        index += 1
+        continue
+      }
+      inQuotedIdentifier = !inQuotedIdentifier
+      continue
+    }
+
+    if (character === '.' && !inQuotedIdentifier) {
+      splitIndex = index
+    }
+  }
+
+  if (splitIndex < 0) {
+    return null
+  }
+
+  return {
+    table: decodeTmdlName(rawReference.slice(0, splitIndex).trim()),
+    column: decodeTmdlName(rawReference.slice(splitIndex + 1).trim()),
+  }
+}
+
+function parseObjectReference(rawReference: string): ObjectId | undefined {
+  const parsed = splitObjectReference(rawReference)
+  if (!parsed) {
+    return undefined
+  }
+
+  return makeObjectId(parsed.table, parsed.column)
 }
 
 function gatherIndentedBlock(
@@ -125,6 +177,185 @@ function buildIgnoredTableSet(
   return { ignoredTables: Array.from(ignoredTables) }
 }
 
+function parseRelationshipCardinality(cardinality: string | undefined): string | undefined {
+  const normalized = cardinality?.trim().toLowerCase()
+  if (normalized === 'one') {
+    return 'one'
+  }
+  if (normalized === 'many') {
+    return 'many'
+  }
+  return normalized
+}
+
+function finalizeRelationshipCardinalities(relationship: {
+  fromCardinality?: string
+  toCardinality?: string
+}) {
+  if (!relationship.fromCardinality && !relationship.toCardinality) {
+    relationship.fromCardinality = 'many'
+    relationship.toCardinality = 'one'
+    return
+  }
+
+  if (!relationship.fromCardinality) {
+    relationship.fromCardinality = 'many'
+  }
+
+  if (!relationship.toCardinality) {
+    relationship.toCardinality = 'many'
+  }
+}
+
+function buildRelationshipUsages(
+  artifactPath: string,
+  relationship: {
+    id: string
+    fromObjectId?: ObjectId
+    toObjectId?: ObjectId
+    fromCardinality?: string
+    toCardinality?: string
+    crossFilteringBehavior?: string
+    joinOnDateBehavior?: string
+    isActive?: boolean
+    securityFilteringBehavior?: string
+  },
+): ReportUsage[] {
+  if (!relationship.fromObjectId || !relationship.toObjectId) {
+    return []
+  }
+
+  const details = {
+    id: relationship.id,
+    fromObjectId: relationship.fromObjectId,
+    toObjectId: relationship.toObjectId,
+    fromCardinality: relationship.fromCardinality,
+    toCardinality: relationship.toCardinality,
+    crossFilteringBehavior: relationship.crossFilteringBehavior,
+    joinOnDateBehavior: relationship.joinOnDateBehavior,
+    isActive: relationship.isActive,
+    securityFilteringBehavior: relationship.securityFilteringBehavior,
+  }
+
+  return [
+    {
+      objectId: relationship.fromObjectId,
+      artifactType: 'relationship',
+      artifactPath,
+      reason: 'Relationship',
+      relationship: details,
+    },
+    {
+      objectId: relationship.toObjectId,
+      artifactType: 'relationship',
+      artifactPath,
+      reason: 'Relationship',
+      relationship: details,
+    },
+  ]
+}
+
+function parseTmdlRelationships(
+  files: FileMap,
+  semanticModelRoot: string,
+): ReportUsage[] {
+  const relationshipPath = Object.keys(files).find(
+    (path) =>
+      pathStartsWith(path, semanticModelRoot) &&
+      path.endsWith('/definition/relationships.tmdl'),
+  )
+
+  if (!relationshipPath) {
+    return []
+  }
+
+  const resolvedRelationshipPath = relationshipPath
+  const usages: ReportUsage[] = []
+  const lines = files[resolvedRelationshipPath].split(/\r?\n/)
+  let current:
+    | {
+        id: string
+        fromObjectId?: ObjectId
+        toObjectId?: ObjectId
+        fromCardinality?: string
+        toCardinality?: string
+        crossFilteringBehavior?: string
+        joinOnDateBehavior?: string
+        isActive?: boolean
+        securityFilteringBehavior?: string
+      }
+    | undefined
+
+  function flushCurrentRelationship() {
+    if (!current) {
+      return
+    }
+
+    finalizeRelationshipCardinalities(current)
+
+    usages.push(...buildRelationshipUsages(resolvedRelationshipPath, current))
+    current = undefined
+  }
+
+  for (const line of lines) {
+    const trimmed = line.trim()
+
+    if (!trimmed) {
+      flushCurrentRelationship()
+      continue
+    }
+
+    const relationshipMatch = trimmed.match(/^relationship\s+(.+)$/i)
+    if (relationshipMatch) {
+      flushCurrentRelationship()
+      current = { id: relationshipMatch[1].trim() }
+      continue
+    }
+
+    if (!current) {
+      continue
+    }
+
+    const propertyMatch = trimmed.match(/^([a-zA-Z]+)\s*:\s*(.+)$/)
+    if (!propertyMatch) {
+      continue
+    }
+
+    const [, propertyName, propertyValue] = propertyMatch
+    switch (propertyName) {
+      case 'fromColumn':
+        current.fromObjectId = parseObjectReference(propertyValue)
+        break
+      case 'toColumn':
+        current.toObjectId = parseObjectReference(propertyValue)
+        break
+      case 'fromCardinality':
+        current.fromCardinality = parseRelationshipCardinality(propertyValue)
+        break
+      case 'toCardinality':
+        current.toCardinality = parseRelationshipCardinality(propertyValue)
+        break
+      case 'crossFilteringBehavior':
+        current.crossFilteringBehavior = propertyValue.trim()
+        break
+      case 'joinOnDateBehavior':
+        current.joinOnDateBehavior = propertyValue.trim()
+        break
+      case 'isActive':
+        current.isActive = parseBoolean(propertyValue)
+        break
+      case 'securityFilteringBehavior':
+        current.securityFilteringBehavior = propertyValue.trim()
+        break
+      default:
+        break
+    }
+  }
+
+  flushCurrentRelationship()
+  return usages
+}
+
 function parseTmdlFiles(files: FileMap, semanticModelRoot: string): ModelObject[] {
   const output: ModelObject[] = []
   const ignoredTables = new Set(buildIgnoredTableSet(files, semanticModelRoot).ignoredTables)
@@ -213,7 +444,10 @@ function parseTmdlFiles(files: FileMap, semanticModelRoot: string): ModelObject[
   return output
 }
 
-function parseModelBim(files: FileMap, semanticModelRoot: string): ModelObject[] {
+function parseModelBim(files: FileMap, semanticModelRoot: string): {
+  objects: ModelObject[]
+  relationshipUsages: ReportUsage[]
+} {
   const bimPath = Object.keys(files).find(
     (path) =>
       pathStartsWith(path, semanticModelRoot) &&
@@ -221,7 +455,7 @@ function parseModelBim(files: FileMap, semanticModelRoot: string): ModelObject[]
   )
 
   if (!bimPath) {
-    return []
+    return { objects: [], relationshipUsages: [] }
   }
 
   try {
@@ -236,10 +470,24 @@ function parseModelBim(files: FileMap, semanticModelRoot: string): ModelObject[]
             sourceColumn?: string
           }>
         }>
+        relationships?: Array<{
+          name?: string
+          fromTable?: string
+          fromColumn?: string
+          fromCardinality?: string
+          toTable?: string
+          toColumn?: string
+          toCardinality?: string
+          crossFilteringBehavior?: string
+          joinOnDateBehavior?: string
+          isActive?: boolean
+          securityFilteringBehavior?: string
+        }>
       }
     }
 
     const output: ModelObject[] = []
+    const relationshipUsages: ReportUsage[] = []
     for (const table of parsed.model?.tables ?? []) {
       if (!table.name) {
         continue
@@ -280,9 +528,53 @@ function parseModelBim(files: FileMap, semanticModelRoot: string): ModelObject[]
       }
     }
 
-    return output
+    for (const relationship of parsed.model?.relationships ?? []) {
+      if (
+        !relationship.fromTable ||
+        !relationship.fromColumn ||
+        !relationship.toTable ||
+        !relationship.toColumn
+      ) {
+        continue
+      }
+
+      const fromObjectId = makeObjectId(
+        relationship.fromTable,
+        relationship.fromColumn,
+      )
+      const toObjectId = makeObjectId(relationship.toTable, relationship.toColumn)
+      const relationshipId =
+        relationship.name ??
+        `${fromObjectId}->${toObjectId}`
+
+      relationshipUsages.push(
+        ...buildRelationshipUsages(bimPath, {
+          id: relationshipId,
+          fromObjectId,
+          toObjectId,
+          fromCardinality: parseRelationshipCardinality(
+            relationship.fromCardinality,
+          ),
+          toCardinality: parseRelationshipCardinality(
+            relationship.toCardinality,
+          ),
+          crossFilteringBehavior: relationship.crossFilteringBehavior,
+          joinOnDateBehavior: relationship.joinOnDateBehavior,
+          isActive: relationship.isActive,
+          securityFilteringBehavior: relationship.securityFilteringBehavior,
+        }),
+      )
+    }
+
+    for (const usage of relationshipUsages) {
+      if (usage.relationship) {
+        finalizeRelationshipCardinalities(usage.relationship)
+      }
+    }
+
+    return { objects: output, relationshipUsages }
   } catch {
-    return []
+    return { objects: [], relationshipUsages: [] }
   }
 }
 
@@ -292,10 +584,15 @@ export function scanSemanticModel(
 ): SemanticModelScan {
   const ignoredTables = buildIgnoredTableSet(files, semanticModelRoot).ignoredTables
   const tmdlObjects = parseTmdlFiles(files, semanticModelRoot)
-  const objects =
+  const tmdlRelationshipUsages =
     tmdlObjects.length > 0
-      ? tmdlObjects
+      ? parseTmdlRelationships(files, semanticModelRoot)
+      : []
+  const bimResult =
+    tmdlObjects.length > 0
+      ? { objects: [], relationshipUsages: [] }
       : parseModelBim(files, semanticModelRoot)
+  const objects = tmdlObjects.length > 0 ? tmdlObjects : bimResult.objects
 
   const outboundRefs = new Map<ObjectId, ObjectId[]>()
   const notes = new Map<ObjectId, string[]>()
@@ -316,6 +613,8 @@ export function scanSemanticModel(
   return {
     objects,
     outboundRefs,
+    relationshipUsages:
+      tmdlObjects.length > 0 ? tmdlRelationshipUsages : bimResult.relationshipUsages,
     notes,
     parseErrors,
     ignoredTables,

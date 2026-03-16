@@ -13,14 +13,33 @@ export interface ModelObject {
   sourcePath: string
 }
 
+export interface RelationshipUsageDetails {
+  id: string
+  fromObjectId: ObjectId
+  toObjectId: ObjectId
+  fromCardinality?: string
+  toCardinality?: string
+  crossFilteringBehavior?: string
+  joinOnDateBehavior?: string
+  isActive?: boolean
+  securityFilteringBehavior?: string
+}
+
 export interface ReportUsage {
   objectId: ObjectId
-  artifactType: 'visual' | 'filter' | 'page' | 'bookmark' | 'reportExtension'
+  artifactType:
+    | 'visual'
+    | 'filter'
+    | 'page'
+    | 'bookmark'
+    | 'reportExtension'
+    | 'relationship'
   artifactPath: string
   pageName?: string
   visualName?: string
   visualType?: string
   reason: string
+  relationship?: RelationshipUsageDetails
 }
 
 export interface AnalysisResult {

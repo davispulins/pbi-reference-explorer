@@ -447,6 +447,37 @@
   background: var(--surface-alt);
 }
 
+.object-reference-button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.grouped-detail-list li:has(.object-reference-button) {
+  padding: 0;
+  transition:
+    border-color 120ms ease,
+    background-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.grouped-detail-list li:has(.object-reference-button):hover {
+  border-color: #9bb9dd;
+  background: #f2f7ff;
+  box-shadow: inset 0 0 0 1px #c8d9f0;
+}
+
+.grouped-detail-list li:has(.object-reference-button):focus-within {
+  border-color: #2a5caa;
+  background: #edf4ff;
+  box-shadow: inset 0 0 0 1px #8fb2e6;
+}
+
 .object-reference {
   display: inline-flex;
   align-items: baseline;

@@ -25,6 +25,7 @@ function countDistinctReportReferences(
         usage.pageName ?? '',
         usage.visualName ?? '',
         usage.visualType ?? '',
+        usage.relationship?.id ?? '',
       ].join('|'),
     )
   }
@@ -45,7 +46,12 @@ export function analyzeProject(files: FileMap): AnalysisBundle {
 
   const semanticModel = scanSemanticModel(files, project.semanticModelRoot)
   project.autoHiddenTables = semanticModel.ignoredTables
-  const reportUsages = scanReportUsages(files, project.reportRoots, semanticModel.objects)
+  const reportUsages = scanReportUsages(
+    files,
+    project.reportRoots,
+    semanticModel.objects,
+  )
+  const combinedUsages = [...reportUsages, ...semanticModel.relationshipUsages]
 
   const inboundModelRefs = new Map<ObjectId, ObjectId[]>()
 
@@ -61,8 +67,8 @@ export function analyzeProject(files: FileMap): AnalysisBundle {
     }
   }
 
-  const usagesByObject = new Map<ObjectId, typeof reportUsages>()
-  for (const usage of reportUsages) {
+  const usagesByObject = new Map<ObjectId, typeof combinedUsages>()
+  for (const usage of combinedUsages) {
     const current = usagesByObject.get(usage.objectId) ?? []
     current.push(usage)
     usagesByObject.set(usage.objectId, current)

@@ -1,6 +1,3 @@
-import { readdirSync, readFileSync, statSync } from 'node:fs'
-import path from 'node:path'
-
 import { describe, expect, it } from 'vitest'
 
 import { analyzeProject } from './analyzer'
@@ -10,30 +7,6 @@ const baseFiles = {
     datasetReference: { byPath: { path: '../model' } },
   }),
   'project/model/definition.pbism': JSON.stringify({ version: '1.0' }),
-}
-
-function readDirectoryAsFileMap(root: string): Record<string, string> {
-  const output: Record<string, string> = {}
-
-  function walk(currentPath: string) {
-    for (const entry of readdirSync(currentPath)) {
-      const fullPath = path.join(currentPath, entry)
-      const stats = statSync(fullPath)
-
-      if (stats.isDirectory()) {
-        walk(fullPath)
-        continue
-      }
-
-      const relativePath = path
-        .relative(root, fullPath)
-        .replace(/\\/g, '/')
-      output[relativePath] = readFileSync(fullPath, 'utf8')
-    }
-  }
-
-  walk(root)
-  return output
 }
 
 describe('analyzeProject', () => {
@@ -222,13 +195,86 @@ table Sales
     expect(revenue?.object.expression).toBe('SUM ( Sales[Amount] )')
   })
 
-  it('filters auto-generated Power BI date tables from the sample project', () => {
-    const sampleRoot = path.resolve(
-      process.cwd(),
-      'example inputs',
-      'pbi project file',
+  it('adds semantic-model relationship usage for calculated columns', () => {
+    const bundle = analyzeProject({
+      ...baseFiles,
+      'project/model/definition/tables/Sales.tmdl': `
+table Sales
+  column 'Region Key' = Sales[RegionKey]
+      `.trim(),
+      'project/model/definition/tables/Region.tmdl': `
+table Region
+  column 'Region Key' = Region[RegionKey]
+      `.trim(),
+      'project/model/definition/relationships.tmdl': `
+relationship SalesToRegion
+  fromCardinality: many
+  toCardinality: one
+  crossFilteringBehavior: oneDirection
+  fromColumn: Sales.Region Key
+  toColumn: Region.Region Key
+      `.trim(),
+    })
+
+    const salesRegionKey = bundle.results.find(
+      (result) => result.object.id === 'Sales[Region Key]',
     )
-    const bundle = analyzeProject(readDirectoryAsFileMap(sampleRoot))
+
+    expect(salesRegionKey?.referenceCount).toBe(1)
+    expect(
+      salesRegionKey?.reportUsages.some(
+        (usage) =>
+          usage.artifactType === 'relationship' &&
+          usage.relationship?.id === 'SalesToRegion' &&
+          usage.relationship.fromObjectId === 'Sales[Region Key]' &&
+          usage.relationship.toObjectId === 'Region[Region Key]',
+      ),
+    ).toBe(true)
+  })
+
+  it('defaults a missing relationship cardinality to many when the other side is many', () => {
+    const bundle = analyzeProject({
+      ...baseFiles,
+      'project/model/definition/tables/A.tmdl': `
+table A
+  column Key = A[Key]
+      `.trim(),
+      'project/model/definition/tables/B.tmdl': `
+table B
+  column Key = B[Key]
+      `.trim(),
+      'project/model/definition/relationships.tmdl': `
+relationship ManyToManyExample
+  fromCardinality: many
+  crossFilteringBehavior: bothDirections
+  fromColumn: A.Key
+  toColumn: B.Key
+      `.trim(),
+    })
+
+    const aKey = bundle.results.find((result) => result.object.id === 'A[Key]')
+    const relationshipUsage = aKey?.reportUsages.find(
+      (usage) => usage.artifactType === 'relationship',
+    )
+
+    expect(relationshipUsage?.relationship?.fromCardinality).toBe('many')
+    expect(relationshipUsage?.relationship?.toCardinality).toBe('many')
+  })
+
+  it('filters auto-generated Power BI date tables from inline TMDL metadata', () => {
+    const bundle = analyzeProject({
+      ...baseFiles,
+      'project/model/definition/tables/LocalDateTable_123.tmdl': `
+table LocalDateTable_123
+  annotation __PBI_LocalDateTable = true
+  column Date = TODAY ()
+      `.trim(),
+      'project/model/definition/tables/DateTableTemplate_456.tmdl': `
+table DateTableTemplate_456
+  annotation __PBI_TemplateDateTable = true
+  column Date = TODAY ()
+      `.trim(),
+    })
 
     expect(bundle.results.length).toBe(0)
     expect(

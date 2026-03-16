@@ -32,6 +32,7 @@ interface GroupedReportUsage {
   artifactType: ReportUsage['artifactType']
   title: string
   visualType?: string
+  relationshipId?: string
   reasons: string[]
 }
 
@@ -85,6 +86,21 @@ function ObjectReference(props: { reference: ObjectId | string }) {
   )
 }
 
+function ObjectReferenceButton(props: {
+  reference: ObjectId
+  onSelect: (reference: ObjectId) => void
+}) {
+  return (
+    <button
+      type="button"
+      className="object-reference-button"
+      onClick={() => props.onSelect(props.reference)}
+    >
+      <ObjectReference reference={props.reference} />
+    </button>
+  )
+}
+
 function ObjectKindIcon(props: { kind: AnalysisResult['object']['kind'] }) {
   const iconPath =
     props.kind === 'measure'
@@ -112,7 +128,44 @@ function formatReferenceLabel(count: number) {
   return `${count} ${count === 1 ? 'reference' : 'references'}`
 }
 
+function normalizeCrossFilterBehavior(value: string | undefined) {
+  return value?.trim().toLowerCase()
+}
+
+function getRelationshipDirectionLabel(usage: ReportUsage) {
+  const relationship = usage.relationship
+  if (!relationship) {
+    return undefined
+  }
+
+  const crossFilterBehavior = normalizeCrossFilterBehavior(
+    relationship.crossFilteringBehavior,
+  )
+  const isBidirectional = crossFilterBehavior === 'bothdirections'
+
+  if (isBidirectional) {
+    return `${relationship.fromObjectId} <-> ${relationship.toObjectId}`
+  }
+
+  if (
+    relationship.fromCardinality === 'one' &&
+    relationship.toCardinality === 'one'
+  ) {
+    return `${relationship.fromObjectId} <-> ${relationship.toObjectId}`
+  }
+
+  return `${relationship.toObjectId} -> ${relationship.fromObjectId}`
+}
+
+function formatRelationshipTitle(usage: ReportUsage) {
+  return getRelationshipDirectionLabel(usage) ?? ''
+}
+
 function formatUsageTitle(usage: ReportUsage) {
+  if (usage.artifactType === 'relationship' && usage.relationship) {
+    return formatRelationshipTitle(usage)
+  }
+
   return [usage.pageName, usage.visualName].filter(Boolean).join(' / ') || usage.artifactPath
 }
 
@@ -140,6 +193,43 @@ function formatProjectionRole(role: string) {
 }
 
 function summarizeUsageReason(usage: ReportUsage) {
+  if (usage.artifactType === 'relationship' && usage.relationship) {
+    const reasons: string[] = []
+    const fromCardinality = usage.relationship.fromCardinality
+    const toCardinality = usage.relationship.toCardinality
+    const relationshipDirection = getRelationshipDirectionLabel(usage)
+
+    if (fromCardinality || toCardinality) {
+      reasons.push(
+        `Cardinality: ${fromCardinality ?? 'unknown'} to ${toCardinality ?? 'unknown'}`,
+      )
+    }
+
+    if (relationshipDirection) {
+      reasons.push(
+        `Cross-filter: ${relationshipDirection}`,
+      )
+    }
+
+    if (usage.relationship.joinOnDateBehavior) {
+      reasons.push(
+        `Join on date: ${usage.relationship.joinOnDateBehavior}`,
+      )
+    }
+
+    if (usage.relationship.isActive !== undefined) {
+      reasons.push(usage.relationship.isActive ? 'Active relationship' : 'Inactive relationship')
+    }
+
+    if (usage.relationship.securityFilteringBehavior) {
+      reasons.push(
+        `Security filtering: ${usage.relationship.securityFilteringBehavior}`,
+      )
+    }
+
+    return reasons.length ? reasons.join(' | ') : 'Used in semantic-model relationship'
+  }
+
   const reason = usage.reason.toLowerCase()
   const tokens = usage.reason.split(' > ')
   const queryStateIndex = tokens.findIndex(
@@ -178,6 +268,10 @@ function summarizeUsageReason(usage: ReportUsage) {
 }
 
 function formatUsageHeading(usage: GroupedReportUsage) {
+  if (usage.artifactType === 'relationship') {
+    return usage.title
+  }
+
   if (usage.artifactType === 'page' && usage.title.endsWith('/definition/report.json')) {
     return 'All pages'
   }
@@ -213,14 +307,17 @@ function groupReportUsages(usages: ReportUsage[]): GroupedReportUsage[] {
       usage.pageName ?? '',
       usage.visualName ?? '',
       usage.visualType ?? '',
+      usage.relationship?.id ?? '',
     ].join('|')
 
     const existing = grouped.get(key)
-    const summarizedReason = summarizeUsageReason(usage)
+    const summarizedReasons = summarizeUsageReason(usage).split(' | ')
 
     if (existing) {
-      if (!existing.reasons.includes(summarizedReason)) {
-        existing.reasons.push(summarizedReason)
+      for (const summarizedReason of summarizedReasons) {
+        if (!existing.reasons.includes(summarizedReason)) {
+          existing.reasons.push(summarizedReason)
+        }
       }
       continue
     }
@@ -230,7 +327,8 @@ function groupReportUsages(usages: ReportUsage[]): GroupedReportUsage[] {
       artifactType: usage.artifactType,
       title: formatUsageTitle(usage),
       visualType: usage.visualType,
-      reasons: [summarizedReason],
+      relationshipId: usage.relationship?.id,
+      reasons: summarizedReasons,
     })
   }
 
@@ -430,6 +528,10 @@ function App() {
   const groupedReportUsages = selectedResult
     ? groupReportUsages(selectedResult.reportUsages)
     : []
+  const resultIds = useMemo(
+    () => new Set(bundle?.results.map((result) => result.object.id) ?? []),
+    [bundle],
+  )
 
   async function runAnalysis(files: Record<string, string>) {
     if (!workerRef.current) {
@@ -490,6 +592,20 @@ function App() {
     setExpandedTables((current) => ({
       ...current,
       [table]: !current[table],
+    }))
+  }
+
+  function selectObjectReference(reference: ObjectId) {
+    const target = bundle?.results.find((result) => result.object.id === reference)
+    if (!target) {
+      return
+    }
+
+    setSelectedId(reference)
+    setSearch('')
+    setExpandedTables((current) => ({
+      ...current,
+      [target.object.table]: true,
     }))
   }
 
@@ -637,7 +753,7 @@ function App() {
               </div>
 
               <section className="detail-section">
-                <h3>Used in report</h3>
+                <h3>Used in report/model</h3>
                 <ul className="detail-list usage-list">
                   {groupedReportUsages.length ? (
                     groupedReportUsages.map((usage) => (
@@ -664,7 +780,14 @@ function App() {
                   {selectedResult.inboundModelRefs.length ? (
                     selectedResult.inboundModelRefs.map((reference) => (
                       <li key={reference}>
-                        <ObjectReference reference={reference} />
+                        {resultIds.has(reference) ? (
+                          <ObjectReferenceButton
+                            reference={reference}
+                            onSelect={selectObjectReference}
+                          />
+                        ) : (
+                          <ObjectReference reference={reference} />
+                        )}
                       </li>
                     ))
                   ) : (
@@ -681,7 +804,14 @@ function App() {
                   {selectedResult.outboundModelRefs.length ? (
                     selectedResult.outboundModelRefs.map((reference) => (
                       <li key={reference}>
-                        <ObjectReference reference={reference} />
+                        {resultIds.has(reference) ? (
+                          <ObjectReferenceButton
+                            reference={reference}
+                            onSelect={selectObjectReference}
+                          />
+                        ) : (
+                          <ObjectReference reference={reference} />
+                        )}
                       </li>
                     ))
                   ) : (
