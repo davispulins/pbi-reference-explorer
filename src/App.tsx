@@ -311,6 +311,24 @@ function UploadScreen(props: {
         </section>
 
         <section className="upload-info">
+          <h2>Developer and source code</h2>
+          <p>
+            Developed by Davis Pulins.
+          </p>
+          <p>
+            This project is open source and available on GitHub at{' '}
+            <a
+              href="https://github.com/davispulins/pbi-reference-explorer"
+              target="_blank"
+              rel="noreferrer"
+            >
+              github.com/davispulins/pbi-reference-explorer
+            </a>
+            .
+          </p>
+        </section>
+
+        <section className="upload-info">
           <h2>How to save as PBIP in Power BI Desktop</h2>
           <ol className="steps-list">
             <li>Open your report in Power BI Desktop.</li>
