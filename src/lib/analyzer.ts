@@ -53,19 +53,21 @@ export function analyzeProject(files: FileMap): AnalysisBundle {
     const inboundRefs = unique(inboundModelRefs.get(object.id) ?? [])
     const reportHits = usagesByObject.get(object.id) ?? []
     const notes = semanticModel.notes.get(object.id) ?? []
+    const referenceCount = inboundRefs.length + reportHits.length
 
     let status: AnalysisResult['status'] = 'UnusedCandidate'
     if (semanticModel.parseErrors.has(object.id)) {
       status = 'ParseError'
     } else if (notes.length) {
       status = 'Unknown'
-    } else if (inboundRefs.length || reportHits.length) {
+    } else if (referenceCount > 0) {
       status = 'Used'
     }
 
     return {
       object,
       status,
+      referenceCount,
       inboundModelRefs: inboundRefs,
       outboundModelRefs: outboundRefs,
       reportUsages: reportHits,

@@ -55,6 +55,7 @@ table Sales
     )
 
     expect(totalSales?.status).toBe('Used')
+    expect(totalSales?.referenceCount).toBe(1)
     expect(totalSales?.inboundModelRefs).toContain('Sales[Consumer Total]')
     expect(consumerTotal?.outboundModelRefs).toContain('Sales[Total Sales]')
   })
@@ -117,6 +118,7 @@ table Sales
     )
 
     expect(result?.status).toBe('Used')
+    expect(result?.referenceCount).toBe(3)
     expect(result?.reportUsages).toHaveLength(3)
     expect(
       result?.reportUsages.some(
@@ -146,6 +148,7 @@ table Sales
     const flag = bundle.results.find((result) => result.object.id === 'Sales[Flag]')
 
     expect(flag?.status).toBe('Unknown')
+    expect(flag?.referenceCount).toBe(0)
     expect(flag?.notes.join(' ')).toMatch(/ambiguous/i)
   })
 

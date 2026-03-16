@@ -169,7 +169,7 @@
 
 .analysis-layout {
   display: grid;
-  grid-template-columns: 360px minmax(0, 1fr);
+  grid-template-columns: 420px minmax(0, 1fr);
   gap: 16px;
   margin-top: 16px;
 }
@@ -261,8 +261,7 @@
 }
 
 .tree-chevron,
-.tree-count,
-.tree-item-kind {
+.tree-count {
   color: var(--text-muted);
   font-size: 12px;
 }
@@ -290,11 +289,73 @@
   background: #e9f2ff;
 }
 
-.status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+.tree-item-unused {
+  background: #fff4eb;
+  box-shadow: inset 3px 0 0 #c05621;
+}
+
+.tree-item-unused:hover {
+  background: #ffe8d6;
+}
+
+.tree-item-unused.selected {
+  background: #ffe0c7;
+}
+
+.tree-item-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.tree-item-flag,
+.tree-item-references,
+.detail-reference-total {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 22px;
+  padding: 0 8px;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.tree-item-flag {
+  border-color: #f0b27a;
+  background: #fff1e2;
+  color: #9a3412;
+}
+
+.tree-item-unused .tree-item-references,
+.tree-item-unused.selected .tree-item-references {
+  border-color: #f0b27a;
+  background: #fff8f2;
+  color: #9a3412;
+}
+
+.object-kind-marker {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   flex: 0 0 auto;
+}
+
+.object-kind-icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 auto;
+}
+
+.object-kind-letter {
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
 }
 
 .status-Used {
@@ -324,6 +385,14 @@
   align-items: flex-start;
   padding: 16px;
   border-bottom: 1px solid var(--border);
+}
+
+.detail-header-meta {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .status-badge {
@@ -482,5 +551,17 @@ pre {
 
   .tree-list {
     max-height: none;
+  }
+
+  .tree-item {
+    flex-wrap: wrap;
+  }
+
+  .tree-item-label {
+    min-width: calc(100% - 24px);
+  }
+
+  .tree-item-meta {
+    margin-left: 16px;
   }
 }

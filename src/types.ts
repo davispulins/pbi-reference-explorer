@@ -26,6 +26,7 @@ export interface ReportUsage {
 export interface AnalysisResult {
   object: ModelObject
   status: UsageStatus
+  referenceCount: number
   inboundModelRefs: ObjectId[]
   outboundModelRefs: ObjectId[]
   reportUsages: ReportUsage[]

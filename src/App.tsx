@@ -35,6 +35,29 @@ interface GroupedReportUsage {
   reasons: string[]
 }
 
+function isUnusedCandidate(result: AnalysisResult) {
+  return result.status === 'UnusedCandidate' && result.referenceCount === 0
+}
+
+function compareResults(left: AnalysisResult, right: AnalysisResult) {
+  const leftHasNoReferences = left.referenceCount === 0
+  const rightHasNoReferences = right.referenceCount === 0
+
+  if (leftHasNoReferences !== rightHasNoReferences) {
+    return leftHasNoReferences ? -1 : 1
+  }
+
+  if (isUnusedCandidate(left) !== isUnusedCandidate(right)) {
+    return isUnusedCandidate(left) ? -1 : 1
+  }
+
+  if (left.referenceCount !== right.referenceCount) {
+    return left.referenceCount - right.referenceCount
+  }
+
+  return left.object.name.localeCompare(right.object.name)
+}
+
 function parseObjectReference(reference: ObjectId | string) {
   const match = /^(.*?)(\[[^\]]+\])$/.exec(reference)
   if (!match) {
@@ -59,6 +82,29 @@ function ObjectReference(props: { reference: ObjectId | string }) {
       <span className="object-reference-table">{parsed.table}</span>
       <span className="object-reference-name">{parsed.object}</span>
     </code>
+  )
+}
+
+function ObjectKindIcon(props: { kind: AnalysisResult['object']['kind'] }) {
+  const iconPath =
+    props.kind === 'measure'
+      ? '/measure-icon.svg'
+      : '/calculated-column-icon.svg'
+  const label =
+    props.kind === 'measure' ? 'Measure' : 'Calculated column'
+
+  return (
+    <span className="object-kind-marker" title={label}>
+      <img
+        className="object-kind-icon"
+        src={iconPath}
+        alt=""
+        aria-hidden="true"
+      />
+      <span className="object-kind-letter" aria-hidden="true">
+        {props.kind === 'measure' ? 'M' : 'C'}
+      </span>
+    </span>
   )
 }
 
@@ -222,9 +268,7 @@ function groupByTable(bundle: AnalysisBundle | null): TableGroup[] {
   return Array.from(groups.entries())
     .map(([table, items]) => ({
       table,
-      items: items.sort((left, right) =>
-        left.object.name.localeCompare(right.object.name),
-      ),
+      items: items.sort(compareResults),
     }))
     .sort((left, right) => left.table.localeCompare(right.table))
 }
@@ -384,7 +428,7 @@ function App() {
     startTransition(() => {
       if (response.ok) {
         setBundle(response.bundle)
-        const firstResult = response.bundle.results[0]
+        const firstResult = groupByTable(response.bundle)[0]?.items[0]
         setSelectedId(firstResult?.object.id ?? '')
         setExpandedTables(
           firstResult ? { [firstResult.object.table]: true } : {},
@@ -502,20 +546,26 @@ function App() {
                             type="button"
                             className={
                               result.object.id === effectiveSelectedId
-                                ? 'tree-item selected'
-                                : 'tree-item'
+                                ? isUnusedCandidate(result)
+                                  ? 'tree-item tree-item-unused selected'
+                                  : 'tree-item selected'
+                                : isUnusedCandidate(result)
+                                  ? 'tree-item tree-item-unused'
+                                  : 'tree-item'
                             }
                             onClick={() => setSelectedId(result.object.id)}
                           >
-                            <span
-                              className={`status-dot status-${result.status}`}
-                              aria-hidden="true"
-                            />
+                            <ObjectKindIcon kind={result.object.kind} />
                             <span className="tree-item-label">
                               {result.object.name}
                             </span>
-                            <span className="tree-item-kind">
-                              {result.object.kind === 'measure' ? 'M' : 'C'}
+                            <span className="tree-item-meta">
+                              {isUnusedCandidate(result) ? (
+                                <span className="tree-item-flag">Unused</span>
+                              ) : null}
+                              <span className="tree-item-references">
+                                References {result.referenceCount}
+                              </span>
                             </span>
                           </button>
                         </li>
@@ -553,9 +603,14 @@ function App() {
                   <h2>{selectedResult.object.name}</h2>
                   <p>{selectedResult.object.table}</p>
                 </div>
-                <span className={`status-badge status-${selectedResult.status}`}>
-                  {humanStatus(selectedResult.status)}
-                </span>
+                <div className="detail-header-meta">
+                  <span className="detail-reference-total">
+                    References {selectedResult.referenceCount}
+                  </span>
+                  <span className={`status-badge status-${selectedResult.status}`}>
+                    {humanStatus(selectedResult.status)}
+                  </span>
+                </div>
               </div>
 
               <section className="detail-section">
