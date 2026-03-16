@@ -51,7 +51,9 @@ function formatUsageTitle(usage: ReportUsage) {
 }
 
 function formatVisualType(visualType: string) {
-  return visualType.replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+  return visualType
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/\b\w/g, (character) => character.toUpperCase())
 }
 
 function formatProjectionRole(role: string) {
@@ -107,6 +109,28 @@ function summarizeUsageReason(usage: ReportUsage) {
   }
 
   return `Referenced in ${usage.artifactType}`
+}
+
+function formatUsageHeading(usage: GroupedReportUsage) {
+  if (usage.visualType) {
+    const pageName = usage.title.split(' / ')[0]
+    return `${pageName} / ${formatVisualType(usage.visualType)}`
+  }
+
+  return usage.title
+}
+
+function formatUsageMeta(usage: GroupedReportUsage) {
+  if (!usage.visualType) {
+    return usage.title
+  }
+
+  const parts = usage.title.split(' / ')
+  if (parts.length < 2) {
+    return usage.title
+  }
+
+  return `Internal visual: ${parts.slice(1).join(' / ')}`
 }
 
 function groupReportUsages(usages: ReportUsage[]): GroupedReportUsage[] {
@@ -516,9 +540,9 @@ function App() {
                     groupedReportUsages.map((usage) => (
                       <li key={usage.key}>
                         <strong>{usage.artifactType}</strong>
-                        <span>{usage.title}</span>
+                        <span>{formatUsageHeading(usage)}</span>
                         {usage.visualType ? (
-                          <small>Visual type: {formatVisualType(usage.visualType)}</small>
+                          <small>{formatUsageMeta(usage)}</small>
                         ) : null}
                         {usage.reasons.map((reason) => (
                           <small key={reason}>{reason}</small>
@@ -533,7 +557,7 @@ function App() {
 
               <section className="detail-section">
                 <h3>Referenced by</h3>
-                <ul className="detail-list">
+                <ul className="detail-list grouped-detail-list">
                   {selectedResult.inboundModelRefs.length ? (
                     selectedResult.inboundModelRefs.map((reference) => (
                       <li key={reference}>{reference}</li>
@@ -546,7 +570,7 @@ function App() {
 
               <section className="detail-section">
                 <h3>Depends on</h3>
-                <ul className="detail-list">
+                <ul className="detail-list grouped-detail-list">
                   {selectedResult.outboundModelRefs.length ? (
                     selectedResult.outboundModelRefs.map((reference) => (
                       <li key={reference}>{reference}</li>
@@ -562,16 +586,14 @@ function App() {
                 <pre>{selectedResult.object.expression}</pre>
               </section>
 
-              <section className="detail-section">
-                <h3>Notes</h3>
-                <ul className="detail-list">
-                  {selectedResult.notes.length ? (
-                    selectedResult.notes.map((note) => <li key={note}>{note}</li>)
-                  ) : (
-                    <li>No parser warnings for this object.</li>
-                  )}
-                </ul>
-              </section>
+              {selectedResult.notes.length ? (
+                <section className="detail-section detail-section-warning">
+                  <h3>Warnings</h3>
+                  <ul className="detail-list">
+                    {selectedResult.notes.map((note) => <li key={note}>{note}</li>)}
+                  </ul>
+                </section>
+              ) : null}
             </>
           ) : (
             <div className="empty-detail">
