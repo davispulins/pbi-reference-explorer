@@ -500,6 +500,18 @@
   font-weight: 600;
 }
 
+.relationship-heading {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.relationship-operator {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
 .grouped-detail-list .detail-empty-text,
 .usage-list .detail-empty-text {
   display: block;

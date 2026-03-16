@@ -33,6 +33,9 @@ interface GroupedReportUsage {
   title: string
   visualType?: string
   relationshipId?: string
+  relationshipFrom?: ObjectId
+  relationshipTo?: ObjectId
+  relationshipOperator?: '->' | '<->'
   reasons: string[]
 }
 
@@ -132,7 +135,11 @@ function normalizeCrossFilterBehavior(value: string | undefined) {
   return value?.trim().toLowerCase()
 }
 
-function getRelationshipDirectionLabel(usage: ReportUsage) {
+function getRelationshipDisplayParts(usage: ReportUsage): {
+  left: ObjectId
+  right: ObjectId
+  operator: '->' | '<->'
+} | undefined {
   const relationship = usage.relationship
   if (!relationship) {
     return undefined
@@ -144,21 +151,34 @@ function getRelationshipDirectionLabel(usage: ReportUsage) {
   const isBidirectional = crossFilterBehavior === 'bothdirections'
 
   if (isBidirectional) {
-    return `${relationship.fromObjectId} <-> ${relationship.toObjectId}`
+    return {
+      left: relationship.fromObjectId,
+      right: relationship.toObjectId,
+      operator: '<->',
+    }
   }
 
   if (
     relationship.fromCardinality === 'one' &&
     relationship.toCardinality === 'one'
   ) {
-    return `${relationship.fromObjectId} <-> ${relationship.toObjectId}`
+    return {
+      left: relationship.fromObjectId,
+      right: relationship.toObjectId,
+      operator: '<->',
+    }
   }
 
-  return `${relationship.toObjectId} -> ${relationship.fromObjectId}`
+  return {
+    left: relationship.toObjectId,
+    right: relationship.fromObjectId,
+    operator: '->',
+  }
 }
 
 function formatRelationshipTitle(usage: ReportUsage) {
-  return getRelationshipDirectionLabel(usage) ?? ''
+  const parts = getRelationshipDisplayParts(usage)
+  return parts ? `${parts.left} ${parts.operator} ${parts.right}` : ''
 }
 
 function formatUsageTitle(usage: ReportUsage) {
@@ -197,7 +217,7 @@ function summarizeUsageReason(usage: ReportUsage) {
     const reasons: string[] = []
     const fromCardinality = usage.relationship.fromCardinality
     const toCardinality = usage.relationship.toCardinality
-    const relationshipDirection = getRelationshipDirectionLabel(usage)
+    const relationshipDirection = formatRelationshipTitle(usage)
 
     if (fromCardinality || toCardinality) {
       reasons.push(
@@ -269,6 +289,20 @@ function summarizeUsageReason(usage: ReportUsage) {
 
 function formatUsageHeading(usage: GroupedReportUsage) {
   if (usage.artifactType === 'relationship') {
+    if (
+      usage.relationshipFrom &&
+      usage.relationshipTo &&
+      usage.relationshipOperator
+    ) {
+      return (
+        <span className="relationship-heading">
+          <ObjectReference reference={usage.relationshipFrom} />
+          <span className="relationship-operator">{usage.relationshipOperator}</span>
+          <ObjectReference reference={usage.relationshipTo} />
+        </span>
+      )
+    }
+
     return usage.title
   }
 
@@ -328,6 +362,9 @@ function groupReportUsages(usages: ReportUsage[]): GroupedReportUsage[] {
       title: formatUsageTitle(usage),
       visualType: usage.visualType,
       relationshipId: usage.relationship?.id,
+      relationshipFrom: getRelationshipDisplayParts(usage)?.left,
+      relationshipTo: getRelationshipDisplayParts(usage)?.right,
+      relationshipOperator: getRelationshipDisplayParts(usage)?.operator,
       reasons: summarizedReasons,
     })
   }
