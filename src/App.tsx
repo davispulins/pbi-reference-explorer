@@ -9,11 +9,11 @@ import {
 } from 'react'
 
 import './App.css'
-import { exportAnalysisCsv, exportAnalysisJson } from './lib/export'
 import { readDirectorySelection, readZipFile } from './lib/file-loader'
 import type {
   AnalysisBundle,
   AnalysisResult,
+  ObjectId,
   ReportUsage,
   WorkerAnalyzeResponse,
 } from './types'
@@ -33,6 +33,33 @@ interface GroupedReportUsage {
   title: string
   visualType?: string
   reasons: string[]
+}
+
+function parseObjectReference(reference: ObjectId | string) {
+  const match = /^(.*?)(\[[^\]]+\])$/.exec(reference)
+  if (!match) {
+    return null
+  }
+
+  return {
+    table: match[1],
+    object: match[2],
+  }
+}
+
+function ObjectReference(props: { reference: ObjectId | string }) {
+  const parsed = parseObjectReference(props.reference)
+
+  if (!parsed) {
+    return <code className="object-reference">{props.reference}</code>
+  }
+
+  return (
+    <code className="object-reference">
+      <span className="object-reference-table">{parsed.table}</span>
+      <span className="object-reference-name">{parsed.object}</span>
+    </code>
+  )
 }
 
 function humanStatus(status: AnalysisResult['status']) {
@@ -112,6 +139,10 @@ function summarizeUsageReason(usage: ReportUsage) {
 }
 
 function formatUsageHeading(usage: GroupedReportUsage) {
+  if (usage.artifactType === 'page' && usage.title.endsWith('/definition/report.json')) {
+    return 'All pages'
+  }
+
   if (usage.visualType) {
     const pageName = usage.title.split(' / ')[0]
     return `${pageName} / ${formatVisualType(usage.visualType)}`
@@ -416,12 +447,6 @@ function App() {
         </div>
 
         <div className="header-actions">
-          <button type="button" onClick={() => exportAnalysisCsv(bundle)}>
-            Export CSV
-          </button>
-          <button type="button" onClick={() => exportAnalysisJson(bundle)}>
-            Export JSON
-          </button>
           <button
             type="button"
             onClick={() => {
@@ -550,7 +575,7 @@ function App() {
                       </li>
                     ))
                   ) : (
-                    <li>No report usage found.</li>
+                    <li className="detail-empty-text">No report usage found.</li>
                   )}
                 </ul>
               </section>
@@ -560,10 +585,14 @@ function App() {
                 <ul className="detail-list grouped-detail-list">
                   {selectedResult.inboundModelRefs.length ? (
                     selectedResult.inboundModelRefs.map((reference) => (
-                      <li key={reference}>{reference}</li>
+                      <li key={reference}>
+                        <ObjectReference reference={reference} />
+                      </li>
                     ))
                   ) : (
-                    <li>No inbound model references found.</li>
+                    <li className="detail-empty-text">
+                      No inbound model references found.
+                    </li>
                   )}
                 </ul>
               </section>
@@ -573,10 +602,14 @@ function App() {
                 <ul className="detail-list grouped-detail-list">
                   {selectedResult.outboundModelRefs.length ? (
                     selectedResult.outboundModelRefs.map((reference) => (
-                      <li key={reference}>{reference}</li>
+                      <li key={reference}>
+                        <ObjectReference reference={reference} />
+                      </li>
                     ))
                   ) : (
-                    <li>No model dependencies detected.</li>
+                    <li className="detail-empty-text">
+                      No model dependencies detected.
+                    </li>
                   )}
                 </ul>
               </section>

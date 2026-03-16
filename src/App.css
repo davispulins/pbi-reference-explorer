@@ -375,20 +375,66 @@
   background: var(--surface-alt);
 }
 
+.object-reference {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--text);
+  font-family: Consolas, 'Courier New', monospace;
+  font-size: 14px;
+}
+
+.object-reference-table {
+  color: #425466;
+}
+
+.object-reference-name {
+  color: #0f4c81;
+  font-weight: 600;
+}
+
+.grouped-detail-list .detail-empty-text,
+.usage-list .detail-empty-text {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
 .grouped-detail-list li + li {
   margin-top: 10px;
 }
 
 .usage-list li {
   display: grid;
-  gap: 4px;
-  padding: 12px;
+  grid-template-columns: 120px minmax(0, 1fr);
+  gap: 10px 16px;
+  align-items: start;
+  padding: 12px 14px;
   border: 1px solid var(--border);
   background: var(--surface-alt);
 }
 
+.detail-empty-text {
+  color: var(--text-muted);
+}
+
 .usage-list li + li {
   margin-top: 10px;
+}
+
+.usage-list li strong {
+  grid-column: 1;
+  align-self: start;
+}
+
+.usage-list li span,
+.usage-list li small {
+  grid-column: 2;
 }
 
 pre {

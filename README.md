@@ -14,7 +14,6 @@ Local-first web app for scanning a Power BI PBIP project and identifying measure
   - other measures or columns that reference it
   - report pages and visuals that use it
   - parser notes when a result cannot be proven safely
-- Exports the analysis as CSV or JSON.
 
 ## Status meanings
 
