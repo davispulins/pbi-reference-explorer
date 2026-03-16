@@ -37,11 +37,7 @@ export function analyzeProject(files: FileMap): AnalysisBundle {
   const project = resolveProject(files)
 
   if (!project.semanticModelRoot || project.errors.length) {
-    return {
-      project,
-      results: [],
-      generatedAt: new Date().toISOString(),
-    }
+    return { project, results: [] }
   }
 
   const semanticModel = scanSemanticModel(files, project.semanticModelRoot)
@@ -109,6 +105,5 @@ export function analyzeProject(files: FileMap): AnalysisBundle {
     results: results.sort((left, right) =>
       left.object.id.localeCompare(right.object.id),
     ),
-    generatedAt: new Date().toISOString(),
   }
 }

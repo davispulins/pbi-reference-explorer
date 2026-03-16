@@ -361,22 +361,6 @@
   line-height: 1;
 }
 
-.status-Used {
-  background: #4c8c4a;
-  color: #2f5c2c;
-}
-
-.status-UnusedCandidate {
-  background: #2b73c5;
-  color: #1d4b80;
-}
-
-.status-Unknown,
-.status-ParseError {
-  background: #b37a2f;
-  color: #7d541e;
-}
-
 .detail-pane {
   padding: 0 0 12px;
 }
@@ -396,15 +380,6 @@
   align-items: center;
   flex-wrap: wrap;
   justify-content: flex-end;
-}
-
-.status-badge {
-  border: 1px solid currentColor;
-  padding: 3px 7px;
-  font-size: 11px;
-  font-weight: 600;
-  white-space: nowrap;
-  background: #fff;
 }
 
 .detail-section {

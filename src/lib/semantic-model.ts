@@ -12,9 +12,7 @@ export interface SemanticModelScan {
   warnings: string[]
 }
 
-interface TableFilterSummary {
-  ignoredTables: string[]
-}
+const TMDL_PROPERTY_PATTERN = /^[A-Za-z][A-Za-z0-9]*\s*:/
 
 function decodeTmdlName(rawName: string): string {
   const trimmed = rawName.trim()
@@ -131,6 +129,30 @@ function extractExpressionFromBlock(blockLines: string[]): string | undefined {
   return undefined
 }
 
+function extractCompactExpression(
+  firstLineExpression: string,
+  blockLines: string[],
+): string {
+  const expressionLines = [firstLineExpression]
+
+  for (const line of blockLines) {
+    const trimmed = line.trim()
+
+    if (!trimmed) {
+      expressionLines.push('')
+      continue
+    }
+
+    if (TMDL_PROPERTY_PATTERN.test(trimmed)) {
+      break
+    }
+
+    expressionLines.push(line)
+  }
+
+  return cleanExpression(expressionLines)
+}
+
 function shouldIgnoreTableByName(tableName: string): boolean {
   return (
     /^LocalDateTable_/i.test(tableName) ||
@@ -148,7 +170,7 @@ function shouldIgnoreTableByContent(content: string): boolean {
 function buildIgnoredTableSet(
   files: FileMap,
   semanticModelRoot: string,
-): TableFilterSummary {
+): string[] {
   const ignoredTables = new Set<string>()
 
   const tablePaths = Object.keys(files).filter(
@@ -174,7 +196,7 @@ function buildIgnoredTableSet(
     }
   }
 
-  return { ignoredTables: Array.from(ignoredTables) }
+  return Array.from(ignoredTables)
 }
 
 function parseRelationshipCardinality(cardinality: string | undefined): string | undefined {
@@ -301,7 +323,6 @@ function parseTmdlRelationships(
     const trimmed = line.trim()
 
     if (!trimmed) {
-      flushCurrentRelationship()
       continue
     }
 
@@ -322,29 +343,29 @@ function parseTmdlRelationships(
     }
 
     const [, propertyName, propertyValue] = propertyMatch
-    switch (propertyName) {
-      case 'fromColumn':
+    switch (propertyName.toLowerCase()) {
+      case 'fromcolumn':
         current.fromObjectId = parseObjectReference(propertyValue)
         break
-      case 'toColumn':
+      case 'tocolumn':
         current.toObjectId = parseObjectReference(propertyValue)
         break
-      case 'fromCardinality':
+      case 'fromcardinality':
         current.fromCardinality = parseRelationshipCardinality(propertyValue)
         break
-      case 'toCardinality':
+      case 'tocardinality':
         current.toCardinality = parseRelationshipCardinality(propertyValue)
         break
-      case 'crossFilteringBehavior':
+      case 'crossfilteringbehavior':
         current.crossFilteringBehavior = propertyValue.trim()
         break
-      case 'joinOnDateBehavior':
+      case 'joinondatebehavior':
         current.joinOnDateBehavior = propertyValue.trim()
         break
-      case 'isActive':
+      case 'isactive':
         current.isActive = parseBoolean(propertyValue)
         break
-      case 'securityFilteringBehavior':
+      case 'securityfilteringbehavior':
         current.securityFilteringBehavior = propertyValue.trim()
         break
       default:
@@ -358,7 +379,7 @@ function parseTmdlRelationships(
 
 function parseTmdlFiles(files: FileMap, semanticModelRoot: string): ModelObject[] {
   const output: ModelObject[] = []
-  const ignoredTables = new Set(buildIgnoredTableSet(files, semanticModelRoot).ignoredTables)
+  const ignoredTables = new Set(buildIgnoredTableSet(files, semanticModelRoot))
   const candidatePaths = Object.keys(files).filter(
     (path) =>
       pathStartsWith(path, semanticModelRoot) &&
@@ -397,14 +418,13 @@ function parseTmdlFiles(files: FileMap, semanticModelRoot: string): ModelObject[
             : 'calculatedColumn'
         const name = decodeTmdlName(compactMatch[2])
         const block = gatherIndentedBlock(lines, index + 1, currentIndent)
-        const expression = cleanExpression([compactMatch[3]])
+        const expression = extractCompactExpression(compactMatch[3], block.lines)
         output.push({
           id: makeObjectId(currentTable, name),
           table: currentTable,
           name,
           kind,
           expression,
-          sourcePath: path,
         })
         index = block.endIndex
         continue
@@ -435,7 +455,6 @@ function parseTmdlFiles(files: FileMap, semanticModelRoot: string): ModelObject[
         name,
         kind,
         expression,
-        sourcePath: path,
       })
       index = block.endIndex
     }
@@ -508,7 +527,6 @@ function parseModelBim(files: FileMap, semanticModelRoot: string): {
           name: measure.name,
           kind: 'measure',
           expression: measure.expression,
-          sourcePath: bimPath,
         })
       }
 
@@ -523,7 +541,6 @@ function parseModelBim(files: FileMap, semanticModelRoot: string): {
           name: column.name,
           kind: 'calculatedColumn',
           expression: column.expression,
-          sourcePath: bimPath,
         })
       }
     }
@@ -582,7 +599,7 @@ export function scanSemanticModel(
   files: FileMap,
   semanticModelRoot: string,
 ): SemanticModelScan {
-  const ignoredTables = buildIgnoredTableSet(files, semanticModelRoot).ignoredTables
+  const ignoredTables = buildIgnoredTableSet(files, semanticModelRoot)
   const tmdlObjects = parseTmdlFiles(files, semanticModelRoot)
   const tmdlRelationshipUsages =
     tmdlObjects.length > 0

@@ -178,7 +178,13 @@ export function resolveProject(files: FileMap): ResolvedProject {
   const activeReportRoots = semanticModelRoot
     ? reportRoots.filter((root) => {
         const reference = references.find((item) => item.reportRoot === root)
-        if (!reference?.byPath) {
+        if (!reference) {
+          return true
+        }
+        if (reference.byConnection && !reference.byPath) {
+          return false
+        }
+        if (!reference.byPath) {
           return true
         }
         const resolved = semanticRootFromReference(
@@ -191,7 +197,6 @@ export function resolveProject(files: FileMap): ResolvedProject {
     : reportRoots
 
   return {
-    pbipFiles,
     reportRoots: activeReportRoots,
     semanticModelRoot,
     autoHiddenTables: [],

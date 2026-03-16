@@ -10,7 +10,6 @@ export interface ModelObject {
   name: string
   kind: ModelObjectKind
   expression: string
-  sourcePath: string
 }
 
 export interface RelationshipUsageDetails {
@@ -53,7 +52,6 @@ export interface AnalysisResult {
 }
 
 export interface ResolvedProject {
-  pbipFiles: string[]
   reportRoots: string[]
   semanticModelRoot?: string
   autoHiddenTables: string[]
@@ -64,22 +62,24 @@ export interface ResolvedProject {
 export interface AnalysisBundle {
   project: ResolvedProject
   results: AnalysisResult[]
-  generatedAt: string
 }
 
 export type FileMap = Record<string, string>
 
 export interface WorkerAnalyzeRequest {
+  requestId: number
   files: FileMap
 }
 
 export interface WorkerAnalyzeSuccess {
   ok: true
+  requestId: number
   bundle: AnalysisBundle
 }
 
 export interface WorkerAnalyzeFailure {
   ok: false
+  requestId: number
   error: string
 }
 

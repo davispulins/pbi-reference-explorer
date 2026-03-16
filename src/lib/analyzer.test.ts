@@ -159,6 +159,146 @@ table Sales
     expect(result?.referenceCount).toBe(1)
   })
 
+  it('keeps visual types scoped to each page visual path', () => {
+    const bundle = analyzeProject({
+      ...baseFiles,
+      'project/model/definition/tables/Sales.tmdl': `
+table Sales
+  measure 'Total Sales' = SUM ( Sales[Amount] )
+      `.trim(),
+      'project/report/definition/pages/Overview/page.json': JSON.stringify({
+        name: 'Overview',
+        displayName: 'Overview',
+      }),
+      'project/report/definition/pages/Overview/visuals/Visual1/visual.json':
+        JSON.stringify({
+          visual: {
+            visualType: 'clusteredColumnChart',
+          },
+          query: {
+            From: [{ Name: 's', Entity: 'Sales' }],
+            queryState: {
+              Values: {
+                projections: [
+                  {
+                    field: {
+                      Measure: {
+                        Expression: { SourceRef: { Source: 's' } },
+                        Property: 'Total Sales',
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        }),
+      'project/report/definition/pages/Details/page.json': JSON.stringify({
+        name: 'Details',
+        displayName: 'Details',
+      }),
+      'project/report/definition/pages/Details/visuals/Visual1/visual.json':
+        JSON.stringify({
+          visual: {
+            visualType: 'lineChart',
+          },
+          query: {
+            From: [{ Name: 's', Entity: 'Sales' }],
+            queryState: {
+              Values: {
+                projections: [
+                  {
+                    field: {
+                      Measure: {
+                        Expression: { SourceRef: { Source: 's' } },
+                        Property: 'Total Sales',
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        }),
+    })
+
+    const result = bundle.results.find(
+      (entry) => entry.object.id === 'Sales[Total Sales]',
+    )
+
+    expect(
+      result?.reportUsages.some(
+        (usage) =>
+          usage.pageName === 'Overview' &&
+          usage.visualName === 'Visual1' &&
+          usage.visualType === 'clusteredColumnChart',
+      ),
+    ).toBe(true)
+    expect(
+      result?.reportUsages.some(
+        (usage) =>
+          usage.pageName === 'Details' &&
+          usage.visualName === 'Visual1' &&
+          usage.visualType === 'lineChart',
+      ),
+    ).toBe(true)
+  })
+
+  it('ignores report roots that only point to a remote semantic model', () => {
+    const bundle = analyzeProject({
+      'project/model/definition.pbism': JSON.stringify({ version: '1.0' }),
+      'project/model/definition/tables/Sales.tmdl': `
+table Sales
+  measure 'Total Sales' = SUM ( Sales[Amount] )
+      `.trim(),
+      'project/local-report/definition.pbir': JSON.stringify({
+        datasetReference: { byPath: { path: '../model' } },
+      }),
+      'project/local-report/definition/pages/Overview/page.json': JSON.stringify({
+        name: 'Overview',
+        displayName: 'Overview',
+      }),
+      'project/remote-report/definition.pbir': JSON.stringify({
+        datasetReference: { byConnection: { connectionString: 'powerbi://api' } },
+      }),
+      'project/remote-report/definition/pages/Overview/page.json': JSON.stringify({
+        name: 'Overview',
+        displayName: 'Overview',
+      }),
+      'project/remote-report/definition/pages/Overview/visuals/Visual1/visual.json':
+        JSON.stringify({
+          visual: {
+            visualType: 'clusteredColumnChart',
+          },
+          query: {
+            From: [{ Name: 's', Entity: 'Sales' }],
+            queryState: {
+              Values: {
+                projections: [
+                  {
+                    field: {
+                      Measure: {
+                        Expression: { SourceRef: { Source: 's' } },
+                        Property: 'Total Sales',
+                      },
+                    },
+                  },
+                ],
+              },
+            },
+          },
+        }),
+    })
+
+    const result = bundle.results.find(
+      (entry) => entry.object.id === 'Sales[Total Sales]',
+    )
+
+    expect(bundle.project.reportRoots).toEqual(['project/local-report'])
+    expect(result?.reportUsages).toHaveLength(0)
+    expect(result?.referenceCount).toBe(0)
+  })
+
   it('marks ambiguous unqualified references as Unknown', () => {
     const bundle = analyzeProject({
       ...baseFiles,
@@ -193,6 +333,33 @@ table Sales
     )
 
     expect(revenue?.object.expression).toBe('SUM ( Sales[Amount] )')
+  })
+
+  it('keeps multiline compact TMDL expressions before metadata properties', () => {
+    const bundle = analyzeProject({
+      ...baseFiles,
+      'project/model/definition/tables/Sales.tmdl': `
+table Sales
+  measure 'Revenue' =
+    SUM ( Sales[Amount] )
+    + SUM ( Sales[Tax] )
+    formatString: "$#,0"
+  measure 'Margin' = [Revenue]
+      `.trim(),
+    })
+
+    const revenue = bundle.results.find(
+      (result) => result.object.id === 'Sales[Revenue]',
+    )
+    const margin = bundle.results.find(
+      (result) => result.object.id === 'Sales[Margin]',
+    )
+
+    expect(revenue?.object.expression).toBe(
+      'SUM ( Sales[Amount] )\n+ SUM ( Sales[Tax] )',
+    )
+    expect(revenue?.referenceCount).toBe(1)
+    expect(margin?.outboundModelRefs).toContain('Sales[Revenue]')
   })
 
   it('adds semantic-model relationship usage for calculated columns', () => {
@@ -230,6 +397,42 @@ relationship SalesToRegion
           usage.relationship.toObjectId === 'Region[Region Key]',
       ),
     ).toBe(true)
+  })
+
+  it('parses TMDL relationships despite blank lines and property-name casing', () => {
+    const bundle = analyzeProject({
+      ...baseFiles,
+      'project/model/definition/tables/A.tmdl': `
+table A
+  column Key = A[Key]
+      `.trim(),
+      'project/model/definition/tables/B.tmdl': `
+table B
+  column Key = B[Key]
+      `.trim(),
+      'project/model/definition/relationships.tmdl': `
+relationship MixedCaseProps
+  FromColumn: A.Key
+
+  ToColumn: B.Key
+  fromCardinality: many
+  TOCARDINALITY: one
+  IsActive: true
+      `.trim(),
+    })
+
+    const aKey = bundle.results.find((result) => result.object.id === 'A[Key]')
+    const relationshipUsage = aKey?.reportUsages.find(
+      (usage) =>
+        usage.artifactType === 'relationship' &&
+        usage.relationship?.id === 'MixedCaseProps',
+    )
+
+    expect(relationshipUsage?.relationship?.fromObjectId).toBe('A[Key]')
+    expect(relationshipUsage?.relationship?.toObjectId).toBe('B[Key]')
+    expect(relationshipUsage?.relationship?.fromCardinality).toBe('many')
+    expect(relationshipUsage?.relationship?.toCardinality).toBe('one')
+    expect(relationshipUsage?.relationship?.isActive).toBe(true)
   })
 
   it('defaults a missing relationship cardinality to many when the other side is many', () => {

@@ -150,6 +150,11 @@ function inferVisualName(path: string): string | undefined {
   return match?.[1]
 }
 
+function inferVisualPathKey(path: string): string | undefined {
+  const match = path.match(/(\/pages\/[^/]+\/visuals\/[^/]+)/)
+  return match?.[1]
+}
+
 function collectVisualTypes(
   files: FileMap,
   reportRoot: string,
@@ -173,12 +178,11 @@ function collectVisualTypes(
         }
       | undefined
 
-    const match = path.match(/\/visuals\/([^/]+)\/visual\.json$/)
-    const visualName = match?.[1]
+    const visualPathKey = inferVisualPathKey(path)
     const visualType = parsed?.visual?.visualType
 
-    if (visualName && visualType) {
-      output[visualName] = visualType
+    if (visualPathKey && visualType) {
+      output[visualPathKey] = visualType
     }
   }
 
@@ -268,7 +272,6 @@ function scanNode(
       name: basename(context.artifactPath),
       kind: 'measure',
       expression: record.expression,
-      sourcePath: context.artifactPath,
     }
     const extracted = extractDaxDependencies({
       currentObject: syntheticObject,
@@ -329,7 +332,7 @@ export function scanReportUsages(
           aliasMap: {},
           pageName: inferPageName(path, pageNames),
           visualName: inferVisualName(path),
-          visualType: visualTypes[inferVisualName(path) ?? ''],
+          visualType: visualTypes[inferVisualPathKey(path) ?? ''],
           artifactPath: path,
           artifactType: resolveArtifactType(path),
           reasonPrefix: [],

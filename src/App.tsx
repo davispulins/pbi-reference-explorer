@@ -32,7 +32,6 @@ interface GroupedReportUsage {
   artifactType: ReportUsage['artifactType']
   title: string
   visualType?: string
-  relationshipId?: string
   relationshipFrom?: ObjectId
   relationshipTo?: ObjectId
   relationshipOperator?: '->' | '<->'
@@ -319,10 +318,6 @@ function formatUsageHeading(usage: GroupedReportUsage) {
 }
 
 function formatUsageMeta(usage: GroupedReportUsage) {
-  if (!usage.visualType) {
-    return usage.title
-  }
-
   const parts = usage.title.split(' / ')
   if (parts.length < 2) {
     return usage.title
@@ -335,6 +330,7 @@ function groupReportUsages(usages: ReportUsage[]): GroupedReportUsage[] {
   const grouped = new Map<string, GroupedReportUsage>()
 
   for (const usage of usages) {
+    const relationshipParts = getRelationshipDisplayParts(usage)
     const key = [
       usage.artifactType,
       usage.artifactPath,
@@ -361,10 +357,9 @@ function groupReportUsages(usages: ReportUsage[]): GroupedReportUsage[] {
       artifactType: usage.artifactType,
       title: formatUsageTitle(usage),
       visualType: usage.visualType,
-      relationshipId: usage.relationship?.id,
-      relationshipFrom: getRelationshipDisplayParts(usage)?.left,
-      relationshipTo: getRelationshipDisplayParts(usage)?.right,
-      relationshipOperator: getRelationshipDisplayParts(usage)?.operator,
+      relationshipFrom: relationshipParts?.left,
+      relationshipTo: relationshipParts?.right,
+      relationshipOperator: relationshipParts?.operator,
       reasons: summarizedReasons,
     })
   }
@@ -489,6 +484,7 @@ function UploadScreen(props: {
             <input
               type="file"
               multiple
+              disabled={loading}
               onChange={onDirectoryChange}
               {...({ webkitdirectory: '', directory: '' } as Record<string, string>)}
             />
@@ -499,7 +495,12 @@ function UploadScreen(props: {
             <strong>Select zip file</strong>
             <small>Choose a zip archive of the full PBIP folder.</small>
             <span className="upload-option-cta">Browse zip</span>
-            <input type="file" accept=".zip" onChange={onZipChange} />
+            <input
+              type="file"
+              accept=".zip"
+              disabled={loading}
+              onChange={onZipChange}
+            />
           </label>
         </div>
 
@@ -512,6 +513,7 @@ function UploadScreen(props: {
 
 function App() {
   const workerRef = useRef<Worker | null>(null)
+  const requestIdRef = useRef(0)
   const [bundle, setBundle] = useState<AnalysisBundle | null>(null)
   const [selectedId, setSelectedId] = useState('')
   const [expandedTables, setExpandedTables] = useState<Record<string, boolean>>({})
@@ -526,7 +528,10 @@ function App() {
       { type: 'module' },
     )
     workerRef.current = worker
-    return () => worker.terminate()
+    return () => {
+      workerRef.current = null
+      worker.terminate()
+    }
   }, [])
 
   const tableGroups = useMemo(() => groupByTable(bundle), [bundle])
@@ -571,38 +576,73 @@ function App() {
   )
 
   async function runAnalysis(files: Record<string, string>) {
-    if (!workerRef.current) {
+    const worker = workerRef.current
+    if (!worker) {
       setError('Analysis worker is not available.')
       return
     }
 
+    const requestId = requestIdRef.current + 1
+    requestIdRef.current = requestId
     setLoading(true)
     setError('')
 
-    const response = await new Promise<WorkerAnalyzeResponse>((resolve) => {
-      const worker = workerRef.current!
-      const listener = (event: MessageEvent<WorkerAnalyzeResponse>) => {
-        worker.removeEventListener('message', listener)
-        resolve(event.data)
-      }
-      worker.addEventListener('message', listener)
-      worker.postMessage({ files })
-    })
+    try {
+      const response = await new Promise<WorkerAnalyzeResponse>(
+        (resolve, reject) => {
+          const handleMessage = (event: MessageEvent<WorkerAnalyzeResponse>) => {
+            if (event.data.requestId !== requestId) {
+              return
+            }
 
-    startTransition(() => {
-      if (response.ok) {
-        setBundle(response.bundle)
-        const firstResult = groupByTable(response.bundle)[0]?.items[0]
-        setSelectedId(firstResult?.object.id ?? '')
-        setExpandedTables(
-          firstResult ? { [firstResult.object.table]: true } : {},
-        )
-      } else {
-        setError(response.error)
+            cleanup()
+            resolve(event.data)
+          }
+          const handleError = (event: ErrorEvent) => {
+            cleanup()
+            reject(new Error(event.message || 'Analysis worker failed.'))
+          }
+          const cleanup = () => {
+            worker.removeEventListener('message', handleMessage)
+            worker.removeEventListener('error', handleError)
+          }
+
+          worker.addEventListener('message', handleMessage)
+          worker.addEventListener('error', handleError)
+          worker.postMessage({ requestId, files })
+        },
+      )
+
+      if (requestId !== requestIdRef.current) {
+        return
       }
 
+      startTransition(() => {
+        if (response.ok) {
+          setBundle(response.bundle)
+          const firstResult = groupByTable(response.bundle)[0]?.items[0]
+          setSelectedId(firstResult?.object.id ?? '')
+          setExpandedTables(
+            firstResult ? { [firstResult.object.table]: true } : {},
+          )
+        } else {
+          setError(response.error)
+        }
+
+        setLoading(false)
+      })
+    } catch (analysisError) {
+      if (requestId !== requestIdRef.current) {
+        return
+      }
+
+      setError(
+        analysisError instanceof Error
+          ? analysisError.message
+          : 'Unknown analysis error.',
+      )
       setLoading(false)
-    })
+    }
   }
 
   async function handleDirectoryChange(event: ChangeEvent<HTMLInputElement>) {
@@ -697,7 +737,7 @@ function App() {
             />
           </div>
 
-          <div className="tree-list" role="tree" aria-label="Tables and objects">
+          <div className="tree-list">
             {visibleGroups.map((group) => {
               const isExpanded = query ? true : Boolean(expandedTables[group.table])
 
