@@ -240,7 +240,7 @@ function UploadScreen(props: {
   return (
     <main className="upload-shell">
       <section className="upload-panel">
-        <h1>PBIP analyzer</h1>
+        <h1>PBI Reference Explorer</h1>
         <p className="upload-copy">
           Analyze a Power BI project and find measures or calculated columns
           that are still referenced in visuals, filters, bookmarks, or other

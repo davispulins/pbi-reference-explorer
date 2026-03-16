@@ -1,4 +1,4 @@
-# PBIP Unused Measure and Column Analyzer
+# PBI Reference Explorer
 
 Local-first web app for scanning a Power BI PBIP project and identifying measures or calculated columns that appear unused inside the saved project.
 
