@@ -26,6 +26,7 @@ lerna-debug.log*
 
 # Example / scratch data
 example inputs/
+agent_skills/
 
 # Editor directories and files
 .vscode/*
