@@ -6,6 +6,7 @@ interface ScanContext {
   aliasMap: Record<string, string>
   pageName?: string
   visualName?: string
+  visualType?: string
   artifactPath: string
   artifactType: ReportUsage['artifactType']
   reasonPrefix: string[]
@@ -106,6 +107,7 @@ function makeUsage(
     artifactPath: context.artifactPath,
     pageName: context.pageName,
     visualName: context.visualName,
+    visualType: context.visualType,
     reason,
   }
 }
@@ -146,6 +148,41 @@ function inferPageName(
 function inferVisualName(path: string): string | undefined {
   const match = path.match(/\/visuals\/([^/]+)/)
   return match?.[1]
+}
+
+function collectVisualTypes(
+  files: FileMap,
+  reportRoot: string,
+): Record<string, string> {
+  const output: Record<string, string> = {}
+
+  for (const [path, content] of Object.entries(files)) {
+    if (
+      !pathStartsWith(path, reportRoot) ||
+      !path.endsWith('/visual.json') ||
+      !path.includes('/visuals/')
+    ) {
+      continue
+    }
+
+    const parsed = safeParseJson(content) as
+      | {
+          visual?: {
+            visualType?: string
+          }
+        }
+      | undefined
+
+    const match = path.match(/\/visuals\/([^/]+)\/visual\.json$/)
+    const visualName = match?.[1]
+    const visualType = parsed?.visual?.visualType
+
+    if (visualName && visualType) {
+      output[visualName] = visualType
+    }
+  }
+
+  return output
 }
 
 function scanNode(
@@ -270,6 +307,7 @@ export function scanReportUsages(
 
   for (const reportRoot of reportRoots) {
     const pageNames = collectPageNames(files, reportRoot)
+    const visualTypes = collectVisualTypes(files, reportRoot)
 
     for (const [path, content] of Object.entries(files)) {
       if (
@@ -291,6 +329,7 @@ export function scanReportUsages(
           aliasMap: {},
           pageName: inferPageName(path, pageNames),
           visualName: inferVisualName(path),
+          visualType: visualTypes[inferVisualName(path) ?? ''],
           artifactPath: path,
           artifactType: resolveArtifactType(path),
           reasonPrefix: [],
@@ -308,6 +347,7 @@ export function scanReportUsages(
       usage.artifactPath,
       usage.pageName ?? '',
       usage.visualName ?? '',
+      usage.visualType ?? '',
       usage.reason,
     ].join('|')
     deduped.set(key, usage)

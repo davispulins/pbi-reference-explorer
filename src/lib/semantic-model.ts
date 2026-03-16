@@ -7,6 +7,7 @@ export interface SemanticModelScan {
   outboundRefs: Map<ObjectId, ObjectId[]>
   notes: Map<ObjectId, string[]>
   parseErrors: Set<ObjectId>
+  ignoredTables: string[]
   warnings: string[]
 }
 
@@ -165,7 +166,7 @@ function parseTmdlFiles(files: FileMap, semanticModelRoot: string): ModelObject[
             : 'calculatedColumn'
         const name = decodeTmdlName(compactMatch[2])
         const block = gatherIndentedBlock(lines, index + 1, currentIndent)
-        const expression = cleanExpression([compactMatch[3], ...block.lines])
+        const expression = cleanExpression([compactMatch[3]])
         output.push({
           id: makeObjectId(currentTable, name),
           table: currentTable,
@@ -317,13 +318,9 @@ export function scanSemanticModel(
     outboundRefs,
     notes,
     parseErrors,
+    ignoredTables,
     warnings:
       [
-        ...(ignoredTables.length
-          ? [
-              `Filtered ${ignoredTables.length} auto-generated Power BI date tables from the analysis.`,
-            ]
-          : []),
         ...(objects.length > 0
           ? []
           : ['No measures or calculated columns were found in the semantic model.']),

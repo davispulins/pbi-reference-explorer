@@ -19,6 +19,7 @@ export interface ReportUsage {
   artifactPath: string
   pageName?: string
   visualName?: string
+  visualType?: string
   reason: string
 }
 
@@ -35,6 +36,7 @@ export interface ResolvedProject {
   pbipFiles: string[]
   reportRoots: string[]
   semanticModelRoot?: string
+  autoHiddenTables: string[]
   warnings: string[]
   errors: string[]
 }

@@ -194,6 +194,7 @@ export function resolveProject(files: FileMap): ResolvedProject {
     pbipFiles,
     reportRoots: activeReportRoots,
     semanticModelRoot,
+    autoHiddenTables: [],
     warnings,
     errors,
   }

@@ -24,6 +24,7 @@ export function analyzeProject(files: FileMap): AnalysisBundle {
   }
 
   const semanticModel = scanSemanticModel(files, project.semanticModelRoot)
+  project.autoHiddenTables = semanticModel.ignoredTables
   const reportUsages = scanReportUsages(files, project.reportRoots, semanticModel.objects)
 
   const inboundModelRefs = new Map<ObjectId, ObjectId[]>()

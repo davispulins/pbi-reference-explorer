@@ -27,6 +27,14 @@ interface VisibleTableGroup extends TableGroup {
   totalCount: number
 }
 
+interface GroupedReportUsage {
+  key: string
+  artifactType: ReportUsage['artifactType']
+  title: string
+  visualType?: string
+  reasons: string[]
+}
+
 function humanStatus(status: AnalysisResult['status']) {
   switch (status) {
     case 'UnusedCandidate':
@@ -40,6 +48,99 @@ function humanStatus(status: AnalysisResult['status']) {
 
 function formatUsageTitle(usage: ReportUsage) {
   return [usage.pageName, usage.visualName].filter(Boolean).join(' / ') || usage.artifactPath
+}
+
+function formatVisualType(visualType: string) {
+  return visualType.replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+}
+
+function formatProjectionRole(role: string) {
+  const normalized = role.toLowerCase()
+  const roleMap: Record<string, string> = {
+    x: 'Used on X axis',
+    y: 'Used on Y axis',
+    values: 'Used in Values',
+    rows: 'Used in Rows',
+    columns: 'Used in Columns',
+    legend: 'Used in Legend',
+    tooltips: 'Used in Tooltips',
+    category: 'Used in Category',
+    series: 'Used in Series',
+  }
+
+  return roleMap[normalized] ?? `Used in ${role}`
+}
+
+function summarizeUsageReason(usage: ReportUsage) {
+  const reason = usage.reason.toLowerCase()
+  const tokens = usage.reason.split(' > ')
+  const queryStateIndex = tokens.findIndex(
+    (token) => token.toLowerCase() === 'querystate',
+  )
+
+  if (queryStateIndex >= 0 && tokens[queryStateIndex + 1]) {
+    return formatProjectionRole(tokens[queryStateIndex + 1])
+  }
+
+  if (reason.includes('filterconfig') || reason.includes('filters')) {
+    return usage.visualName ? 'Used in visual filter' : 'Used in filter'
+  }
+
+  if (reason.includes('sortdefinition') || reason.includes('sort')) {
+    return 'Used in sort'
+  }
+
+  if (reason.includes('measurereference')) {
+    return 'Referenced by report extension measure'
+  }
+
+  if (reason.includes('reportextensionexpression')) {
+    return 'Used in report extension expression'
+  }
+
+  if (reason.includes('bookmark')) {
+    return 'Used in bookmark'
+  }
+
+  if (reason.includes('drill')) {
+    return 'Used in drill configuration'
+  }
+
+  return `Referenced in ${usage.artifactType}`
+}
+
+function groupReportUsages(usages: ReportUsage[]): GroupedReportUsage[] {
+  const grouped = new Map<string, GroupedReportUsage>()
+
+  for (const usage of usages) {
+    const key = [
+      usage.artifactType,
+      usage.artifactPath,
+      usage.pageName ?? '',
+      usage.visualName ?? '',
+      usage.visualType ?? '',
+    ].join('|')
+
+    const existing = grouped.get(key)
+    const summarizedReason = summarizeUsageReason(usage)
+
+    if (existing) {
+      if (!existing.reasons.includes(summarizedReason)) {
+        existing.reasons.push(summarizedReason)
+      }
+      continue
+    }
+
+    grouped.set(key, {
+      key,
+      artifactType: usage.artifactType,
+      title: formatUsageTitle(usage),
+      visualType: usage.visualType,
+      reasons: [summarizedReason],
+    })
+  }
+
+  return Array.from(grouped.values())
 }
 
 function matchesSearch(result: AnalysisResult, query: string) {
@@ -86,13 +187,46 @@ function UploadScreen(props: {
       <section className="upload-panel">
         <h1>PBIP analyzer</h1>
         <p className="upload-copy">
-          Upload a full PBIP folder or a zip archive of the project.
+          Analyze a Power BI project and find measures or calculated columns
+          that are still referenced in visuals, filters, bookmarks, or other
+          expressions.
         </p>
+
+        <section className="upload-info">
+          <h2>Use a Power BI Project (.pbip)</h2>
+          <p>
+            This app works with the Power BI Project format (`.pbip`) because
+            the report and semantic model definitions are stored as readable
+            files that can be analyzed in the browser.
+          </p>
+          <p>
+            If you currently have a `.pbix` file, save it as a Power BI Project
+            first and then upload the full project folder, or a zip of that
+            folder.
+          </p>
+        </section>
+
+        <section className="upload-info">
+          <h2>How to save as PBIP in Power BI Desktop</h2>
+          <ol className="steps-list">
+            <li>Open your report in Power BI Desktop.</li>
+            <li>Go to <strong>File &gt; Save As</strong>.</li>
+            <li>Select <strong>Power BI Project (*.pbip)</strong>.</li>
+            <li>Save the project, then upload that folder here or zip it first.</li>
+          </ol>
+        </section>
+
+        <div className="upload-actions-header">
+          <h2>Choose a project to analyze</h2>
+          <p>Select either the full project folder or a zip of that folder.</p>
+        </div>
 
         <div className="upload-actions">
           <label className="upload-option">
-            <span>Folder</span>
+            <span className="upload-option-tag">Folder</span>
             <strong>Select project folder</strong>
+            <small>Choose the saved PBIP project folder.</small>
+            <span className="upload-option-cta">Browse folder</span>
             <input
               type="file"
               multiple
@@ -102,16 +236,16 @@ function UploadScreen(props: {
           </label>
 
           <label className="upload-option">
-            <span>Zip</span>
+            <span className="upload-option-tag">Zip</span>
             <strong>Select zip file</strong>
+            <small>Choose a zip archive of the full PBIP folder.</small>
+            <span className="upload-option-cta">Browse zip</span>
             <input type="file" accept=".zip" onChange={onZipChange} />
           </label>
         </div>
 
-        <div className="upload-status">
-          <span>{loading ? 'Processing project...' : 'Waiting for input'}</span>
-          {error ? <p className="error-text">{error}</p> : null}
-        </div>
+        {loading ? <p className="upload-progress">Processing project...</p> : null}
+        {error ? <p className="error-text upload-error">{error}</p> : null}
       </section>
     </main>
   )
@@ -169,6 +303,9 @@ function App() {
   const selectedResult =
     flatVisibleItems.find((item) => item.object.id === effectiveSelectedId) ??
     bundle?.results.find((item) => item.object.id === effectiveSelectedId)
+  const groupedReportUsages = selectedResult
+    ? groupReportUsages(selectedResult.reportUsages)
+    : []
 
   async function runAnalysis(files: Record<string, string>) {
     if (!workerRef.current) {
@@ -344,6 +481,19 @@ function App() {
               <p className="empty-panel">No measures or calculated columns found.</p>
             ) : null}
           </div>
+
+          {bundle.project.autoHiddenTables.length ? (
+            <details className="hidden-tables hidden-tables-bottom">
+              <summary>
+                Auto-hidden tables ({bundle.project.autoHiddenTables.length})
+              </summary>
+              <ul className="hidden-table-list">
+                {bundle.project.autoHiddenTables.map((table) => (
+                  <li key={table}>{table}</li>
+                ))}
+              </ul>
+            </details>
+          ) : null}
         </aside>
 
         <section className="detail-pane">
@@ -360,6 +510,28 @@ function App() {
               </div>
 
               <section className="detail-section">
+                <h3>Used in report</h3>
+                <ul className="detail-list usage-list">
+                  {groupedReportUsages.length ? (
+                    groupedReportUsages.map((usage) => (
+                      <li key={usage.key}>
+                        <strong>{usage.artifactType}</strong>
+                        <span>{usage.title}</span>
+                        {usage.visualType ? (
+                          <small>Visual type: {formatVisualType(usage.visualType)}</small>
+                        ) : null}
+                        {usage.reasons.map((reason) => (
+                          <small key={reason}>{reason}</small>
+                        ))}
+                      </li>
+                    ))
+                  ) : (
+                    <li>No report usage found.</li>
+                  )}
+                </ul>
+              </section>
+
+              <section className="detail-section">
                 <h3>Referenced by</h3>
                 <ul className="detail-list">
                   {selectedResult.inboundModelRefs.length ? (
@@ -368,23 +540,6 @@ function App() {
                     ))
                   ) : (
                     <li>No inbound model references found.</li>
-                  )}
-                </ul>
-              </section>
-
-              <section className="detail-section">
-                <h3>Used in report</h3>
-                <ul className="detail-list usage-list">
-                  {selectedResult.reportUsages.length ? (
-                    selectedResult.reportUsages.map((usage, index) => (
-                      <li key={`${usage.artifactPath}-${usage.reason}-${index}`}>
-                        <strong>{usage.artifactType}</strong>
-                        <span>{formatUsageTitle(usage)}</span>
-                        <small>{usage.reason}</small>
-                      </li>
-                    ))
-                  ) : (
-                    <li>No report usage found.</li>
                   )}
                 </ul>
               </section>

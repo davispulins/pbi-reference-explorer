@@ -73,6 +73,9 @@ table Sales
       }),
       'project/report/definition/pages/ReportSection/visuals/Visual1/visual.json':
         JSON.stringify({
+          visual: {
+            visualType: 'clusteredColumnChart',
+          },
           query: {
             From: [{ Name: 's', Entity: 'Sales' }],
             queryState: {
@@ -115,9 +118,13 @@ table Sales
 
     expect(result?.status).toBe('Used')
     expect(result?.reportUsages).toHaveLength(3)
-    expect(result?.reportUsages.some((usage) => usage.visualName === 'Visual1')).toBe(
-      true,
-    )
+    expect(
+      result?.reportUsages.some(
+        (usage) =>
+          usage.visualName === 'Visual1' &&
+          usage.visualType === 'clusteredColumnChart',
+      ),
+    ).toBe(true)
     expect(
       result?.reportUsages.some(
         (usage) => usage.artifactType === 'reportExtension',
@@ -142,6 +149,24 @@ table Sales
     expect(flag?.notes.join(' ')).toMatch(/ambiguous/i)
   })
 
+  it('does not include lineageTag or formatString in compact TMDL expressions', () => {
+    const bundle = analyzeProject({
+      ...baseFiles,
+      'project/model/definition/tables/Sales.tmdl': `
+table Sales
+  measure 'Revenue' = SUM ( Sales[Amount] )
+    formatString: "$#,0"
+    lineageTag: 123456
+      `.trim(),
+    })
+
+    const revenue = bundle.results.find(
+      (result) => result.object.id === 'Sales[Revenue]',
+    )
+
+    expect(revenue?.object.expression).toBe('SUM ( Sales[Amount] )')
+  })
+
   it('filters auto-generated Power BI date tables from the sample project', () => {
     const sampleRoot = path.resolve(
       process.cwd(),
@@ -157,8 +182,8 @@ table Sales
       ),
     ).toBe(false)
     expect(
-      bundle.project.warnings.some((warning) =>
-        /Filtered .* auto-generated Power BI date tables/i.test(warning),
+      bundle.project.autoHiddenTables.some((table) =>
+        /^LocalDateTable_|^DateTableTemplate_/i.test(table),
       ),
     ).toBe(true)
   })
