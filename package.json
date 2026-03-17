@@ -2,6 +2,9 @@
   "name": "pbi-reference-explorer",
   "private": true,
   "version": "0.0.0",
+  "description": "Local-first web app for analyzing Power BI PBIP references and finding unused measures or calculated columns.",
+  "license": "MIT",
+  "author": "Davis Pulins",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -29,5 +32,13 @@
     "typescript-eslint": "^8.56.1",
     "vite": "^8.0.0",
     "vitest": "^4.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davispulins/pbi-reference-explorer.git"
+  },
+  "homepage": "https://github.com/davispulins/pbi-reference-explorer",
+  "bugs": {
+    "url": "https://github.com/davispulins/pbi-reference-explorer/issues"
   }
 }
