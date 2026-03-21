@@ -49,14 +49,6 @@ This app is intentionally scoped to the uploaded PBIP project only. It does not 
 - personalized visuals
 - assets not present in the uploaded PBIP project
 
-## Supported Inputs
-
-- Local PBIP projects where the report points to the semantic model by path
-- Semantic model definitions stored as TMDL files
-- Semantic model definitions stored as `model.bim`
-- Project folder upload
-- Zip upload of the same folder structure
-
 ## Known Limitations
 
 - Reports that point only to a remote semantic model by connection cannot be fully analyzed
