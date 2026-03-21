@@ -38,6 +38,8 @@ interface GroupedReportUsage {
   reasons: string[]
 }
 
+const APP_VERSION = 'v0.0.1'
+
 function isUnusedCandidate(result: AnalysisResult) {
   return result.status === 'UnusedCandidate' && result.referenceCount === 0
 }
@@ -485,6 +487,9 @@ function UploadScreen(props: {
           GitHub
         </a>
       </p>
+      <span className="app-version-badge" aria-label={`Application version ${APP_VERSION}`}>
+        {APP_VERSION}
+      </span>
     </main>
   )
 }
@@ -913,6 +918,9 @@ function App() {
           ))}
         </section>
       ) : null}
+      <span className="app-version-badge" aria-label={`Application version ${APP_VERSION}`}>
+        {APP_VERSION}
+      </span>
     </div>
   )
 }
