@@ -3,21 +3,24 @@
   line-height: 1.4;
   font-weight: 400;
   color: #1f2937;
-  background: #f3f4f6;
+  background: #f5f6f8;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   --text: #111827;
   --text-muted: #6b7280;
-  --border: #d1d5db;
+  --border: #d5d8de;
   --surface: #ffffff;
-  --surface-alt: #f9fafb;
-  --shadow-soft: 0 12px 30px rgb(15 23 42 / 0.08);
-  --shadow-card: 0 10px 24px rgb(15 23 42 / 0.07);
-  --motion-fast: 140ms cubic-bezier(0.22, 1, 0.36, 1);
-  --motion-base: 220ms cubic-bezier(0.22, 1, 0.36, 1);
-  --motion-slow: 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  --surface-alt: #f7f8fa;
+  --shadow-soft: 0 2px 8px rgb(15 23 42 / 0.06);
+  --shadow-card: 0 1px 4px rgb(15 23 42 / 0.05);
+  --radius-sm: 4px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --motion-fast: 120ms ease;
+  --motion-base: 180ms ease;
+  --motion-slow: 260ms ease;
 }
 
 * {
@@ -35,9 +38,7 @@ body,
 body {
   min-height: 100vh;
   font-size: 14px;
-  background:
-    radial-gradient(circle at top, rgb(191 219 254 / 0.22), transparent 38%),
-    linear-gradient(180deg, #f8fbff 0%, #f3f4f6 26%, #eef2f7 100%);
+  background: #f5f6f8;
 }
 
 button,

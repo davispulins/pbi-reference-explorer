@@ -407,113 +407,84 @@ function UploadScreen(props: {
   return (
     <main className="upload-shell">
       <section className="upload-panel">
-        <div className="upload-hero">
-          <div className="upload-hero-copy">
-            <span className="upload-eyebrow">Power BI project analysis</span>
-            <h1>PBI Reference Explorer</h1>
-            <p className="upload-copy">
-              Open a saved PBIP project to check which measures and calculated
-              columns are still used.
-            </p>
-
-            <ul className="upload-summary-list">
-              <li>See where an object is referenced in the model and report.</li>
-              <li>Find likely unused measures and calculated columns.</li>
-              <li>Analysis runs locally in your browser.</li>
-            </ul>
-          </div>
-
-          <section className="upload-action-panel">
-            <div className="upload-actions-header">
-              <span className="upload-section-kicker">Start here</span>
-              <h2>Choose a PBIP project to analyze</h2>
-              <p>
-                Select the project folder. If you have a zip of that same
-                folder, you can use that instead.
-              </p>
-            </div>
-
-            <div className="upload-actions">
-              <label className="upload-option upload-option-primary">
-                <span className="upload-option-tag">Recommended</span>
-                <strong>Select project folder</strong>
-                <small>
-                  Use this when you have the PBIP folder on your computer.
-                </small>
-                <span className="upload-option-cta">Browse folder</span>
-                <input
-                  type="file"
-                  multiple
-                  disabled={loading}
-                  onChange={onDirectoryChange}
-                  {...({ webkitdirectory: '', directory: '' } as Record<string, string>)}
-                />
-              </label>
-
-              <label className="upload-option">
-                <span className="upload-option-tag">Fallback</span>
-                <strong>Select zip file</strong>
-                <small>Use a zip file that contains that same PBIP folder.</small>
-                <span className="upload-option-cta">Browse zip</span>
-                <input
-                  type="file"
-                  accept=".zip"
-                  disabled={loading}
-                  onChange={onZipChange}
-                />
-              </label>
-            </div>
-
-            <p className="upload-action-note">
-              This app is read-only. It does not change your files.
-            </p>
-
-            {loading ? <p className="upload-progress">Processing project...</p> : null}
-            {error ? <p className="error-text upload-error">{error}</p> : null}
-          </section>
+        <div>
+          <h1>PBI Reference Explorer</h1>
+          <p className="upload-copy">
+            Analyze a Power BI PBIP project to understand how your semantic
+            model objects are used.
+          </p>
+          <ul className="upload-checklist">
+            <li>Find measures and calculated columns with zero references</li>
+            <li>See exactly where each object is used — visuals, filters, relationships</li>
+            <li>Trace inbound and outbound DAX dependencies</li>
+          </ul>
         </div>
 
-        <div className="upload-support-grid">
-          <section className="upload-info upload-info-steps">
-            <h2>Save as PBIP first</h2>
-            <ol className="steps-list">
-              <li>Open your report in Power BI Desktop.</li>
-              <li>Go to <strong>File &gt; Save As</strong>.</li>
-              <li>Select <strong>Power BI Project (*.pbip)</strong>.</li>
-              <li>Upload that folder here, or zip the folder and upload the archive.</li>
-            </ol>
-          </section>
+        <div className="upload-actions">
+          <label className="upload-option">
+            <span className="upload-option-tag">Recommended</span>
+            <strong>Select project folder</strong>
+            <small>
+              Use this when you have the PBIP folder on your computer.
+            </small>
+            <span className="upload-option-cta">Browse folder</span>
+            <input
+              type="file"
+              multiple
+              disabled={loading}
+              onChange={onDirectoryChange}
+              {...({ webkitdirectory: '', directory: '' } as Record<string, string>)}
+            />
+          </label>
 
-          <section className="upload-info">
-            <h2>What gets analyzed</h2>
-            <ul className="upload-checklist">
-              <li>Find unused measures and calculated columns</li>
-              <li>Checks whether they are used in visuals, filters, and relationships</li>
-              <li>Shows where each object is still being used</li>
-            </ul>
-          </section>
-
-          <section className="upload-info">
-            <h2>Privacy and scope</h2>
-            <p>
-              This app is client-side JavaScript only. It does not send your
-              data to any external server.
-            </p>
-          </section>
+          <label className="upload-option">
+            <span className="upload-option-tag">Alternative</span>
+            <strong>Select zip file</strong>
+            <small>Use a zip file that contains the PBIP folder.</small>
+            <span className="upload-option-cta">Browse zip</span>
+            <input
+              type="file"
+              accept=".zip"
+              disabled={loading}
+              onChange={onZipChange}
+            />
+          </label>
         </div>
 
-        <p className="upload-footer">
-          Developed by Davis Pulins. Source available on{' '}
-          <a
-            href="https://github.com/davispulins/pbi-reference-explorer"
-            target="_blank"
-            rel="noreferrer"
-          >
-            GitHub
-          </a>
-          .
+        <p className="upload-action-note">
+          Analysis runs locally in your browser. No data is sent externally.
         </p>
+
+        {loading ? <p className="upload-progress">Processing project…</p> : null}
+        {error ? <p className="error-text">{error}</p> : null}
+
+        <details className="upload-info-collapsible">
+          <summary>How to save as PBIP</summary>
+          <div className="upload-info-content">
+            <div>
+              <h3>Steps</h3>
+              <ol className="steps-list">
+                <li>Open your report in Power BI Desktop.</li>
+                <li>Go to <strong>File &gt; Save As</strong>.</li>
+                <li>Select <strong>Power BI Project (*.pbip)</strong>.</li>
+                <li>Upload the resulting folder here, or zip it first.</li>
+              </ol>
+            </div>
+
+          </div>
+        </details>
       </section>
+
+      <p className="upload-footer">
+        By Davis Pulins ·{' '}
+        <a
+          href="https://github.com/davispulins/pbi-reference-explorer"
+          target="_blank"
+          rel="noreferrer"
+        >
+          GitHub
+        </a>
+      </p>
     </main>
   )
 }
