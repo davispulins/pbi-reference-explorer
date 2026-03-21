@@ -2,7 +2,7 @@
 
 PBI Reference Explorer is a local-first web app for scanning a Power BI PBIP project and identifying measures or calculated columns that appear unused inside the saved project.
 
-Available at: `https://pbi.pulins.lv`
+Available at: [pbi.pulins.lv](https://pbi.pulins.lv)
 
 The app runs entirely in the browser. Uploaded project files are analyzed locally and are not sent to external servers.
 
