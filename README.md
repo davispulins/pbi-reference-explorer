@@ -36,8 +36,6 @@ This project helps you inspect saved PBIP content and answer:
 - PBIP files are not uploaded to a backend service by this app
 - No semantic model data is transmitted externally as part of the analysis flow
 
-If you deploy the app yourself, confirm your hosting, analytics, and logging setup still matches that privacy expectation.
-
 ## Scope
 
 This app is intentionally scoped to the uploaded PBIP project only. It does not try to prove whether an object is used by:
