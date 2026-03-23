@@ -684,7 +684,7 @@ function App() {
     <div className="app-shell">
       <header className="app-header">
         <div>
-          <h1>Reference analysis</h1>
+          <h1>PBI Reference Explorer</h1>
           <p className="header-copy">
             Review measures and calculated columns, see where they are still
             referenced, and identify unused objects that can likely be deleted
