@@ -1,6 +1,6 @@
 # PBI Reference Explorer
 
-PBI Reference Explorer is a small local-first web app for checking a Power BI PBIP project and finding measures or calculated columns that seem unused in the saved project files.
+PBI Reference Explorer is a tool for inspecting Power BI PBIP projects, tracing report and model references, and spotting measures or calculated columns that may no longer be in use.
 
 Live version: [pbi.pulins.lv](https://pbi.pulins.lv)
 
